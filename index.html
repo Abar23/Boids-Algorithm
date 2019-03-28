@@ -1,6 +1,5 @@
 <html>
     <head>
-        <script src="./Libraries/jquery-3.3.1.min.js"></script>
         <title>Boids Birds</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
@@ -24,18 +23,17 @@
 			}
 		</style>
     </head>
-    <body>
-		<div id="info">Boids Birds</div>
+    <body onload = "start();">
 		<canvas id="game-surface" style="width: 100vw; height: 100vh; display: block;">
 			Your browser does not support HTML5
-        </canvas>
-        <script src="./Libraries/util.js"></script>
-		<script src="./Libraries/gl-matrix.js"></script>
-        <script src="./main.js"></script>
-        <script type="text/javascript">
-            window.onload = function() {
-                start();
-            }
-        </script>
+		</canvas>
+		<script src="./Libraries/jquery-3.3.1.min.js"></script>
+		<script src="./Libraries/glMatrix-0.9.5.min.js"></script>
+
+		<script id="vertShader" type="x-shader/x-vertex" src="./Shaders/vertexShader.glsl"></script>
+		<script id="fragShader" type="x-shader/x-fragment" src="./Shaders/fragmentShader.glsl"></script>
+		
+		<script type="text/javascript" src="./getShader.js"></script>
+        <script type="text/javascript" src="./main.js"></script>
     </body>
 </html>
