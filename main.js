@@ -1,11 +1,8 @@
-
 var canvas, gl, program;
-
 // start() is the main function that gets called first by index.html
 var start = function() {
 	initCanvas();
     initShaders();
-    
     requestAnimationFrame(animate);
 };
 
