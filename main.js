@@ -1,8 +1,21 @@
-var canvas, gl, program;
+var canvas, gl, program, mesh, texture;
 // start() is the main function that gets called first by index.html
 var start = function() {
 	initCanvas();
-    initShaders();
+    program = new Shader('vertShader', 'fragShader');
+    program.UseProgram();
+
+    texture = new Texture("bird1-image");
+    texture.BindTexture(1);
+
+    var verts = [-0.5, -0.5, 0.0, 1.0, 0.0, 
+                  0.5, -0.5, 0.0, 0.0, 0.0,
+                  0.0,  0.5, 0.0, 0.5, 0.5];
+    
+    var indices = [0, 1, 2];
+    mesh = new Mesh(verts, indices, program);
+
+
     requestAnimationFrame(animate);
 };
 
@@ -19,33 +32,15 @@ var initCanvas = function() {
     gl.cullFace(gl.BACK);  
 }
 
-// initializes the shaders
-var initShaders = function() {
-
-    program = gl.createProgram();
-
-	var vertexShader = getShader(gl, "vertShader");
-    var fragmentShader = getShader(gl, "fragShader");
-
-    gl.attachShader(program, vertexShader);
-    gl.attachShader(program, fragmentShader);
-    gl.linkProgram(program);
-
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-        alert("Could not initialise shaders");
-    }
-
-    gl.useProgram(program);
-}
-
 // animation loop
 var animate = function() {
 
     resize(gl.canvas);
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     gl.clearColor(0.53, 0.81, 0.92, 1.0);   // sky blue
-	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    program.SetUniformToTextureUnit('desiredTexture', 1);
+    mesh.Draw();
     requestAnimationFrame(animate);
 }
 
