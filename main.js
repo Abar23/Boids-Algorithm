@@ -1,3 +1,4 @@
+
 var canvas, gl, program, mesh, texture;
 // start() is the main function that gets called first by index.html
 var start = function() {
@@ -15,6 +16,13 @@ var start = function() {
     var indices = [0, 1, 2];
     mesh = new Mesh(verts, indices, program);
 
+
+    fuckinVector = vec3.create([1,1,1]);
+    fuckinVector2 = vec3.create([2,2,2]);
+    console.log("Before add:  " + fuckinVector);
+
+    vec3.add(fuckinVector, fuckinVector, fuckinVector2);
+    console.log("After add:  " + fuckinVector);
 
     requestAnimationFrame(animate);
 };
