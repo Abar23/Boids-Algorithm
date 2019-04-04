@@ -1,6 +1,6 @@
-var verts = [-0.5, -0.5, 0.0, 1.0, 0.0, 
-    0.5, -0.5, 0.0, 0.0, 0.0,
-    0.0,  0.5, 0.0, 0.5, 0.5];
+var verts = [-1, -1, 0.0, 1.0, 0.0, 
+    1, -1, 0.0, 0.0, 0.0,
+    0.0,  1, 0.0, 0.5, 0.5];
 
 var indices = [0, 1, 2];
 
@@ -12,10 +12,9 @@ class Boid
         this.acceleration = vec3.create();
         this.velocity = vec3.fromValues(this.RandomValueBetween(-1, 1), this.RandomValueBetween(-1, 1), 0);
         this.position = vec3.create();
-        this.maxSpeed = 0.5;
-        this.maxSteeringForce = 1;
+        this.maxSpeed = 0.2;
+        this.maxSteeringForce = 0.01;
         this.modelMatrix = mat4.create();
-        mat4.identity(this.modelMatrix);
     }
 
     RandomValueBetween(minimumValue, maximumValue)
@@ -29,12 +28,12 @@ class Boid
         this.Limit(this.velocity, this.maxSpeed);
         vec3.add(this.position, this.position, this.velocity);
         vec3.set(this.acceleration, 0, 0, 0);
-        mat4.translate(this.modelMatrix, this.modelMatrix, this.position);
+        mat4.translate(this.modelMatrix, mat4.create(), this.position);
+        mat4.scale(this.modelMatrix, this.modelMatrix, vec3.fromValues(0.4, 0.4, 0.4));
     }
 
     Render(shaderProgram)
     {
-        // !!!!! FIGURE OUT HEADING / DIRECTION / ANGLE SHIT
         shaderProgram.SetUniformMatrix4fv('mWorld', this.modelMatrix);
         this.mesh.Draw();
     }
@@ -44,7 +43,9 @@ class Boid
         var separation = this.Separate(boids);
         var alignment = this.Align(boids);
         var cohesion = this.Cohesion(boids);
-        // Weight forces here
+        vec3.multiply(separation, separation, vec3.fromValues(1.5, 1.5, 1.5));
+        vec3.multiply(alignment, alignment, vec3.fromValues(1.0, 1.0, 1.0));
+        vec3.multiply(cohesion, cohesion, vec3.fromValues(0.5, 0.5, 0.5));
         vec3.add(this.acceleration, this.acceleration, separation);
         vec3.add(this.acceleration, this.acceleration, alignment);
         vec3.add(this.acceleration, this.acceleration, cohesion);
@@ -52,7 +53,22 @@ class Boid
 
     Borders()
     {
-
+        if(this.position[0] > 27)
+        {
+            this.position[0] = -27;
+        }
+        else if(this.position[0] < -27)
+        {
+            this.position[0] = 27;
+        }
+        else if(this.position[1] > 15)
+        {
+            this.position[1] = -15;
+        }
+        else if(this.position[1] < -15)
+        {
+            this.position[1] = 15;
+        }
     }
 
     Run(boids, shaderProgram)
@@ -65,7 +81,7 @@ class Boid
 
     Separate(boids) 
     {
-        var desiredSeparation = 4;
+        var desiredSeparation = 1;
         var steerVector = vec3.create();
         var count = 0;
 
@@ -105,7 +121,7 @@ class Boid
 
     Align(boids)
     {
-        var neighborDistance = 4;
+        var neighborDistance = 2;
         var sumVector = vec3.create();
         var count = 0;
 
@@ -137,7 +153,7 @@ class Boid
 
     Cohesion(boids) 
     {        
-        var neighborDistance = 4;
+        var neighborDistance = 2;
         var sumVector = vec3.create();
         var count = 0;
 
@@ -175,7 +191,7 @@ class Boid
     {
         if (vec3.length(vector) > max)
         {
-            var scaleRatio = this.maxSpeed / vec3.length(this.velocity);
+            var scaleRatio = max / vec3.length(vector);
             vec3.scale(vector, vector, scaleRatio);
         }
     }

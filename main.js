@@ -25,7 +25,7 @@ var start = function() {
     texture = new Texture("bird1-image");
     texture.BindTexture(0);
 
-    flock = new Flock(2, program);
+    flock = new Flock(100, program);
 
     projectionMatrix = mat4.create();
     mat4.perspective(projectionMatrix, Math.PI / 4, aspectRatio, 0.01, 100);
