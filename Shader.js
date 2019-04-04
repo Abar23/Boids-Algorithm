@@ -78,4 +78,9 @@ class Shader
     {
         gl.uniform1i(gl.getUniformLocation(this.shaderProgram, uniformName), textureUnit);
     }
+
+    SetUniformMatrix4fv(uniformName, matrix)
+    {
+        gl.uniformMatrix4fv(gl.getUniformLocation(this.shaderProgram, uniformName), gl.FALSE, matrix);
+    }
 }

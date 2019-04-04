@@ -10,12 +10,17 @@ class Boid
     {
         this.mesh = new Mesh(verts, indices, shaderProgram);
         this.acceleration = vec3.create();
-        this.velocity = vec3.create();
+        this.velocity = vec3.fromValues(this.RandomValueBetween(-1, 1), this.RandomValueBetween(-1, 1), 0);
         this.position = vec3.create();
-        this.maxSpeed = 5;
-        this.maxSteeringForce = 1;
+        this.maxSpeed = 0.1;
+        this.maxSteeringForce = 0.0005;
         this.modelMatrix = mat4.create();
         mat4.identity(this.modelMatrix);
+    }
+
+    RandomValueBetween(minimumValue, maximumValue)
+    {
+        return Math.random() * (maximumValue - minimumValue + 1) + minimumValue;
     }
 
     Update()
@@ -24,12 +29,13 @@ class Boid
         this.Limit(this.velocity, this.maxSpeed);
         vec3.add(this.position, this.position, this.velocity);
         vec3.set(this.acceleration, 0, 0, 0);
+        mat4.translate(this.modelMatrix, this.modelMatrix, this.position);
     }
 
-    Render()
+    Render(shaderProgram)
     {
         // !!!!! FIGURE OUT HEADING / DIRECTION / ANGLE SHIT
-        mat4.translate(this.modelMatrix, this.modelMatrix, this.position);
+        shaderProgram.SetUniformMatrix4fv('mWorld', this.modelMatrix);
         this.mesh.Draw();
     }
 
@@ -49,17 +55,17 @@ class Boid
 
     }
 
-    Run(boids)
+    Run(boids, shaderProgram)
     {
         this.Flock(boids);
         this.Update();
         this.Borders();
-        this.Render();
+        this.Render(shaderProgram);
     }
 
     Separate(boids) 
     {
-        var desiredSeparation = 25.0;
+        var desiredSeparation = 0.1;
         var steerVector = vec3.create();
         var count = 0;
 
@@ -97,7 +103,7 @@ class Boid
 
     Align(boids)
     {
-        var neighborDistance = 50;
+        var neighborDistance = 0.1;
         var sumVector = vec3.create();
         var count = 0;
 
@@ -128,7 +134,7 @@ class Boid
 
     Cohesion(boids) 
     {        
-        var neighborDistance = 50;
+        var neighborDistance = 0.1;
         var sumVector = vec3.create();
         var count = 0;
 
