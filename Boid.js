@@ -12,8 +12,8 @@ class Boid
         this.acceleration = vec3.create();
         this.velocity = vec3.fromValues(this.RandomValueBetween(-1, 1), this.RandomValueBetween(-1, 1), 0);
         this.position = vec3.create();
-        this.maxSpeed = 0.1;
-        this.maxSteeringForce = 0.0005;
+        this.maxSpeed = 0.5;
+        this.maxSteeringForce = 1;
         this.modelMatrix = mat4.create();
         mat4.identity(this.modelMatrix);
     }
@@ -65,7 +65,7 @@ class Boid
 
     Separate(boids) 
     {
-        var desiredSeparation = 0.1;
+        var desiredSeparation = 4;
         var steerVector = vec3.create();
         var count = 0;
 
@@ -74,10 +74,11 @@ class Boid
             var dist = vec3.distance(this.position, boids[i].position);
             if (dist > 0 && dist < desiredSeparation)
             {
+                var distanceVector = vec3.fromValues(dist, dist, dist);
                 var diff = vec3.create();
                 vec3.subtract(diff, this.position, boids[i].position);
                 vec3.normalize(diff, diff);
-                vec3.divide(diff, diff, dist);
+                vec3.divide(diff, diff, distanceVector);
                 vec3.add(steerVector, steerVector, diff);
                 count++;
             }
@@ -92,8 +93,9 @@ class Boid
 
         if (vec3.length(steerVector) > 0)
         {
+            var maxSpeedVector = vec3.fromValues(this.maxSpeed, this.maxSpeed, this.maxSpeed);
             vec3.normalize(steerVector, steerVector);
-            vec3.multiply(steerVector, steerVector, this.maxSpeed);
+            vec3.multiply(steerVector, steerVector, maxSpeedVector);
             vec3.subtract(steerVector, steerVector, this.velocity);
             this.Limit(steerVector, this.maxSteeringForce);
         }
@@ -103,7 +105,7 @@ class Boid
 
     Align(boids)
     {
-        var neighborDistance = 0.1;
+        var neighborDistance = 4;
         var sumVector = vec3.create();
         var count = 0;
 
@@ -120,11 +122,12 @@ class Boid
         var steerVector = vec3.create();
         if (count > 0)
         {
+            var maxSpeedVector = vec3.fromValues(this.maxSpeed, this.maxSpeed, this.maxSpeed);
             var countVector = vec3.create();
             vec3.set(countVector, count, count, count);
             vec3.divide(sumVector, sumVector, countVector);
             vec3.normalize(sumVector, sumVector);
-            vec3.multiply(sumVector, sumVector, this.maxSpeed);
+            vec3.multiply(sumVector, sumVector, maxSpeedVector);
             vec3.subtract(steerVector, sumVector, this.velocity);
             this.Limit(steerVector, this.maxSteeringForce);
         }
@@ -134,7 +137,7 @@ class Boid
 
     Cohesion(boids) 
     {        
-        var neighborDistance = 0.1;
+        var neighborDistance = 4;
         var sumVector = vec3.create();
         var count = 0;
 
@@ -151,6 +154,7 @@ class Boid
         var steerVector = vec3.create();
         if (count > 0)
         {
+            var maxSpeedVector = vec3.fromValues(this.maxSpeed, this.maxSpeed, this.maxSpeed);
             var countVector = vec3.create();
             vec3.set(countVector, count, count, count);
             vec3.divide(sumVector, sumVector, countVector);
@@ -158,7 +162,7 @@ class Boid
             var desired = vec3.create();
             vec3.subtract(desired, sumVector, this.position);
             vec3.normalize(desired, desired);
-            vec3.multiply(desired, desired, this.maxSpeed);
+            vec3.multiply(desired, desired, maxSpeedVector);
 
             vec3.subtract(steerVector, desired, this.velocity);
             this.Limit(steerVector, this.maxSteeringForce);
