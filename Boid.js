@@ -14,7 +14,7 @@ class Boid
         this.position = vec3.create();
         this.maxSpeed = 0.2;
         this.maxSteeringForce = 0.01;
-        this.modelMatrix = mat4.create();
+        this.modelMatrix;
     }
 
     RandomValueBetween(minimumValue, maximumValue)
@@ -28,7 +28,11 @@ class Boid
         this.Limit(this.velocity, this.maxSpeed);
         vec3.add(this.position, this.position, this.velocity);
         vec3.set(this.acceleration, 0, 0, 0);
-        mat4.translate(this.modelMatrix, mat4.create(), this.position);
+        
+        this.modelMatrix = mat4.create();
+        this.modelMatrix[12] = this.position[0];
+        this.modelMatrix[13] = this.position[1];
+        this.modelMatrix[14] = this.position[2];
         mat4.scale(this.modelMatrix, this.modelMatrix, vec3.fromValues(0.4, 0.4, 0.4));
     }
 
