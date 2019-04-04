@@ -33,6 +33,8 @@ class Boid
         this.modelMatrix[12] = this.position[0];
         this.modelMatrix[13] = this.position[1];
         this.modelMatrix[14] = this.position[2];
+        var angle = Math.atan2(this.velocity[1], this.velocity[0]) - (Math.PI / 2);
+        mat4.rotate(this.modelMatrix, this.modelMatrix, angle, vec3.fromValues(0, 0, 1));
         mat4.scale(this.modelMatrix, this.modelMatrix, vec3.fromValues(0.4, 0.4, 0.4));
     }
 
