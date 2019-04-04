@@ -1,8 +1,11 @@
-
-var canvas, gl, program, mesh, texture;
+var canvas, gl, program, mesh, texture, vec3, mat4;
 // start() is the main function that gets called first by index.html
 var start = function() {
-	initCanvas();
+    
+    vec3 = glMatrix.vec3;
+    mat4 = glMatrix.mat4;
+
+    initCanvas();
     program = new Shader('vertShader', 'fragShader');
     program.UseProgram();
 
@@ -16,13 +19,8 @@ var start = function() {
     var indices = [0, 1, 2];
     mesh = new Mesh(verts, indices, program);
 
-
-    fuckinVector = vec3.create([1,1,1]);
-    fuckinVector2 = vec3.create([2,2,2]);
-    console.log("Before add:  " + fuckinVector);
-
-    vec3.add(fuckinVector, fuckinVector, fuckinVector2);
-    console.log("After add:  " + fuckinVector);
+    var b = new Boid(program);
+    b.Update();
 
     requestAnimationFrame(animate);
 };
