@@ -13,11 +13,10 @@ var indices = [0, 2, 1,
 
 class Boid
 {
-    constructor(shaderProgram) 
+    constructor(shaderProgram, factory) 
     {
-        this.spriteAtlas = new SpriteAtlas("duckhunt1-image", 240, 240, 3, 3);
-        this.spriteAtlas.AdvanceAndGenerate(4);
-        this.mesh = new Mesh(verts, this.spriteAtlas.GetTextCoords(), indices, shaderProgram);
+        this.factory = factory;
+        this.mesh = new Mesh(verts, this.factory.GetTextCoords(0), indices, shaderProgram);
         this.acceleration = vec3.create();
         this.velocity = vec3.fromValues(this.RandomValueBetween(-1, 1), this.RandomValueBetween(-1, 1), 0);
         this.position = vec3.create();
@@ -49,11 +48,11 @@ class Boid
 
     Render(shaderProgram)
     {
-        this.spriteAtlas.BindAtlas(0);
+        this.factory.BindAtlas(0);
         shaderProgram.SetUniformMatrix4fv('mWorld', this.modelMatrix);
         shaderProgram.SetUniformToTextureUnit('desiredTexture', 0);
         this.mesh.Draw();
-        this.spriteAtlas.UnbindAtlas();
+        this.factory.UnbindAtlas();
     }
 
     Flock(boids)

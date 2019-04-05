@@ -75,16 +75,6 @@ class SpriteAtlas
         this.textCords[7] = startPointY + this.normalizedSpriteWidth;
     }
 
-    BindAtlas(textureUnit)
-    {
-        this.textureAtlas.BindTexture(textureUnit);
-    }
-
-    UnbindAtlas()
-    {
-        this.textureAtlas.UnbindTexture();
-    }
-
     GetTextCoords()
     {
         return this.textCords;
