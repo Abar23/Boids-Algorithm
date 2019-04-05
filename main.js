@@ -1,20 +1,37 @@
-var canvas, gl, program, mesh, texture;
+var canvas, 
+    gl, 
+    program,
+    texture, 
+    vec3, 
+    mat4, 
+    projectionMatrix, 
+    viewMatrix,
+    aspectRatio;
+
+var flock;
+
 // start() is the main function that gets called first by index.html
 var start = function() {
-	initCanvas();
+    
+    initCanvas();
+
+    vec3 = glMatrix.vec3;
+    mat4 = glMatrix.mat4;
+    aspectRatio = canvas.width / canvas.height;
+    
     program = new Shader('vertShader', 'fragShader');
     program.UseProgram();
 
-    texture = new Texture("bird1-image");
-    texture.BindTexture(1);
+    texture = new Texture("duckhunt1-image");
+    texture.BindTexture(0);
 
-    var verts = [-0.5, -0.5, 0.0, 1.0, 0.0, 
-                  0.5, -0.5, 0.0, 0.0, 0.0,
-                  0.0,  0.5, 0.0, 0.5, 0.5];
+    flock = new Flock(100, program);
+
+    projectionMatrix = mat4.create();
+    mat4.perspective(projectionMatrix, Math.PI / 4, aspectRatio, 0.01, 100);
     
-    var indices = [0, 1, 2];
-    mesh = new Mesh(verts, indices, program);
-
+    viewMatrix = mat4.create();
+    mat4.translate(viewMatrix, viewMatrix, vec3.fromValues(0, 0, -30));
 
     requestAnimationFrame(animate);
 };
@@ -29,7 +46,9 @@ var initCanvas = function() {
 	gl.enable(gl.DEPTH_TEST);
 	gl.enable(gl.CULL_FACE);
 	gl.frontFace(gl.CCW);
-    gl.cullFace(gl.BACK);  
+    gl.cullFace(gl.BACK); 
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); 
 }
 
 // animation loop
@@ -39,8 +58,13 @@ var animate = function() {
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     gl.clearColor(0.53, 0.81, 0.92, 1.0);   // sky blue
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    program.SetUniformToTextureUnit('desiredTexture', 1);
-    mesh.Draw();
+
+    program.SetUniformToTextureUnit('desiredTexture', 0);
+    program.SetUniformMatrix4fv('mView', viewMatrix);
+    program.SetUniformMatrix4fv('mProj', projectionMatrix);
+    
+    flock.Update();
+
     requestAnimationFrame(animate);
 }
 
@@ -55,5 +79,6 @@ var resize = function(canvas) {
         // Make the canvas the same size
         canvas.width  = displayWidth;
         canvas.height = displayHeight;
+        aspectRatio = displayWidth / displayHeight;
     }
 }
