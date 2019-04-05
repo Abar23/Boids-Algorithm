@@ -1,6 +1,3 @@
-const NUM_S_COORDS = 4;
-const NUM_T_COORDS = 4;
-
 class SpriteAtlas
 {
     constructor(textureId, 

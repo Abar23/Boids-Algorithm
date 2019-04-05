@@ -22,7 +22,7 @@ var start = function() {
     program = new Shader('vertShader', 'fragShader');
     program.UseProgram();
 
-    flock = new Flock(100, program);
+    flock = new Flock(5, program);
 
     projectionMatrix = mat4.create();
     mat4.perspective(projectionMatrix, Math.PI / 4, aspectRatio, 0.01, 100);

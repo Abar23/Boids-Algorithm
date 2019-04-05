@@ -3,20 +3,15 @@ var verts = [-1.0,  1.0, 0.0,
              -1.0, -1.0, 0.0, 
               1.0, -1.0, 0.0];
 
-var oldTextCoords = [0.0,  0.0,
-                    0.33,  0.0,
-                     0.0, 0.33,
-                    0.33, 0.33,];
-
 var indices = [0, 2, 1,
-               0, 3, 1];
+               1, 2, 3];
 
 class Boid
 {
     constructor(shaderProgram, factory) 
     {
         this.factory = factory;
-        this.mesh = new Mesh(verts, this.factory.GetTextCoords(0), indices, shaderProgram);
+        this.mesh = new Mesh(verts, this.factory.GetTextCoords(DUCK_2), indices, shaderProgram);
         this.acceleration = vec3.create();
         this.velocity = vec3.fromValues(this.RandomValueBetween(-1, 1), this.RandomValueBetween(-1, 1), 0);
         this.position = vec3.create();
@@ -43,7 +38,7 @@ class Boid
         this.modelMatrix[14] = this.position[2];
         var angle = Math.atan2(this.velocity[1], this.velocity[0]) - (Math.PI / 2);
         mat4.rotate(this.modelMatrix, this.modelMatrix, angle, vec3.fromValues(0, 0, 1));
-        mat4.scale(this.modelMatrix, this.modelMatrix, vec3.fromValues(1, 1, 1));
+        mat4.scale(this.modelMatrix, this.modelMatrix, vec3.fromValues(1.5, 1.5, 1.5));
     }
 
     Render(shaderProgram)
