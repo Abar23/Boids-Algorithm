@@ -11,7 +11,8 @@ class Boid
     constructor(shaderProgram, factory) 
     {
         this.factory = factory;
-        this.mesh = new Mesh(verts, this.factory.GetTextCoords(DUCK_2), indices, shaderProgram);
+        this.texCoords = this.factory.GetTextCoords();
+        this.mesh = new Mesh(verts, this.texCoords, indices, shaderProgram);
         this.acceleration = vec3.create();
         this.velocity = vec3.fromValues(this.RandomValueBetween(-1, 1), this.RandomValueBetween(-1, 1), 0);
         this.position = vec3.create();
@@ -38,7 +39,10 @@ class Boid
         this.modelMatrix[14] = this.position[2];
         var angle = Math.atan2(this.velocity[1], this.velocity[0]) - (Math.PI / 2);
         mat4.rotate(this.modelMatrix, this.modelMatrix, angle, vec3.fromValues(0, 0, 1));
-        mat4.scale(this.modelMatrix, this.modelMatrix, vec3.fromValues(1, 1, 1));
+        mat4.scale(this.modelMatrix, this.modelMatrix, vec3.fromValues(1.0, 1.0, 1.0));
+
+        this.texCoords = this.factory.Update();
+        this.mesh.RefillTextCoords(this.texCoords);
     }
 
     Render(shaderProgram)

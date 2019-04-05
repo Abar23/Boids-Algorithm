@@ -38,7 +38,7 @@ class SpriteAtlas
         {
             xPosition += this.normalizedSpriteWidth;
             
-            if(this.numSpritesAlongX % i == 1)
+            if(xPosition >= 1)
             {
                 xPosition = 0;
                 yPosition += this.normalizedSpriteHeight;

@@ -9,7 +9,7 @@ class Timer
     {
         var endingTime = new Date();
         var elapedTime = endingTime - this.startingTime;
-        this.startTime = endingTime;
+        this.startingTime = endingTime;
         Math.round(elapedTime);
 
         return elapedTime;
