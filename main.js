@@ -22,7 +22,7 @@ var start = function() {
     program = new Shader('vertShader', 'fragShader');
     program.UseProgram();
 
-    texture = new Texture("bird1-image");
+    texture = new Texture("duckhunt1-image");
     texture.BindTexture(0);
 
     flock = new Flock(100, program);
