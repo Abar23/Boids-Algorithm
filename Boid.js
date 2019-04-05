@@ -21,7 +21,6 @@ class Boid
     constructor(shaderProgram) 
     {
         this.mesh = new Mesh(verts, oldTextCoords, indices, shaderProgram);
-        this.mesh.RefillTextCoords(newTextCoords);
         this.acceleration = vec3.create();
         this.velocity = vec3.fromValues(this.RandomValueBetween(-1, 1), this.RandomValueBetween(-1, 1), 0);
         this.position = vec3.create();
