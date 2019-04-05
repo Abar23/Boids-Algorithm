@@ -8,7 +8,7 @@ var canvas,
     viewMatrix,
     aspectRatio;
 
-var flock;
+var flock, cloudBatch;
 
 // start() is the main function that gets called first by index.html
 var start = function() {
@@ -22,7 +22,8 @@ var start = function() {
     program = new Shader('vertShader', 'fragShader');
     program.UseProgram();
 
-    flock = new Flock(5, program);
+    flock = new Flock(100, program);
+    cloudBatch = new CloudBatch(15, program);
 
     projectionMatrix = mat4.create();
     mat4.perspective(projectionMatrix, Math.PI / 4, aspectRatio, 0.01, 100);
@@ -60,6 +61,7 @@ var animate = function() {
     program.SetUniformMatrix4fv('mProj', projectionMatrix);
     
     flock.Update();
+    cloudBatch.Update();
 
     requestAnimationFrame(animate);
 }

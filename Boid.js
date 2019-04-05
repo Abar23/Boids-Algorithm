@@ -38,7 +38,7 @@ class Boid
         this.modelMatrix[14] = this.position[2];
         var angle = Math.atan2(this.velocity[1], this.velocity[0]) - (Math.PI / 2);
         mat4.rotate(this.modelMatrix, this.modelMatrix, angle, vec3.fromValues(0, 0, 1));
-        mat4.scale(this.modelMatrix, this.modelMatrix, vec3.fromValues(1.5, 1.5, 1.5));
+        mat4.scale(this.modelMatrix, this.modelMatrix, vec3.fromValues(1, 1, 1));
     }
 
     Render(shaderProgram)
