@@ -12,7 +12,7 @@ class Factory
     constructor(spriteAtlas)
     {
         this.startingFrame = 0;
-        this.currentFrame = this.startingFrame;
+        this.currentFrame = 0;
         this.spriteAtlas = spriteAtlas;
         this.timer = new Timer();
         this.elapesTime = 0;
@@ -27,7 +27,7 @@ class Factory
             this.currentFrame++;
             if((this.currentFrame - this.startingFrame) > NUM_ANIMATION_FRAMES - 1)
             {
-                this.currentFrame = this.startingFrame;;
+                this.currentFrame = 0;
             }
             this.elapesTime = 0;
         }
@@ -42,7 +42,7 @@ class Factory
 
     GetTextCoords()
     {
-        this.spriteAtlas.AdvanceAndGenerate(this.currentFrame);
+        this.spriteAtlas.AdvanceAndGenerate(this.currentFrame + this.startingFrame);
         return this.spriteAtlas.GetTextCoords();
     }
 
