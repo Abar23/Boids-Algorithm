@@ -1,8 +1,10 @@
-var verts = [-1, -1, 0.0, 1.0, 0.0, 
-    1, -1, 0.0, 0.0, 0.0,
-    0.0,  1, 0.0, 0.5, 0.5];
+var verts = [-1.0, -1.0, 0.0, 0.0, 0.0, 
+              1.0, -1.0, 0.0, 1.0, 0.0,
+             -1.0,  1.0, 0.0, 0.0, 1.0, 
+              1.0,  1.0, 0.0, 1.0, 1.0];
 
-var indices = [0, 1, 2];
+var indices = [0, 1, 2,
+               1, 3, 2];
 
 class Boid
 {
@@ -33,7 +35,7 @@ class Boid
         this.modelMatrix[12] = this.position[0];
         this.modelMatrix[13] = this.position[1];
         this.modelMatrix[14] = this.position[2];
-        var angle = Math.atan2(this.velocity[1], this.velocity[0]) - (Math.PI / 2);
+        var angle = Math.atan2(this.velocity[1], this.velocity[0]) + (Math.PI / 2);
         mat4.rotate(this.modelMatrix, this.modelMatrix, angle, vec3.fromValues(0, 0, 1));
         mat4.scale(this.modelMatrix, this.modelMatrix, vec3.fromValues(0.4, 0.4, 0.4));
     }
@@ -51,7 +53,7 @@ class Boid
         var cohesion = this.Cohesion(boids);
         vec3.multiply(separation, separation, vec3.fromValues(1.5, 1.5, 1.5));
         vec3.multiply(alignment, alignment, vec3.fromValues(1.0, 1.0, 1.0));
-        vec3.multiply(cohesion, cohesion, vec3.fromValues(0.5, 0.5, 0.5));
+        vec3.multiply(cohesion, cohesion, vec3.fromValues(1.0, 1.0, 1.0));
         vec3.add(this.acceleration, this.acceleration, separation);
         vec3.add(this.acceleration, this.acceleration, alignment);
         vec3.add(this.acceleration, this.acceleration, cohesion);
