@@ -69,7 +69,7 @@ class SpriteAtlas
         this.textCords[5] = startPointY + this.normalizedSpriteHeight;
         // Bottom right corner
         this.textCords[6] = startPointX + this.normalizedSpriteWidth;
-        this.textCords[7] = startPointY + this.normalizedSpriteWidth;
+        this.textCords[7] = startPointY + this.normalizedSpriteHeight;
     }
 
     GetTextCoords()
