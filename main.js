@@ -22,9 +22,6 @@ var start = function() {
     program = new Shader('vertShader', 'fragShader');
     program.UseProgram();
 
-    texture = new Texture("duckhunt1-image");
-    texture.BindTexture(0);
-
     flock = new Flock(100, program);
 
     projectionMatrix = mat4.create();
@@ -59,7 +56,6 @@ var animate = function() {
     gl.clearColor(0.53, 0.81, 0.92, 1.0);   // sky blue
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    program.SetUniformToTextureUnit('desiredTexture', 0);
     program.SetUniformMatrix4fv('mView', viewMatrix);
     program.SetUniformMatrix4fv('mProj', projectionMatrix);
     

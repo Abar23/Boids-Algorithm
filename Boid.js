@@ -1,26 +1,23 @@
-var verts = [-1.0, -1.0, 0.0, 
-              1.0, -1.0, 0.0,
-             -1.0,  1.0, 0.0,
-              1.0,  1.0, 0.0];
+var verts = [-1.0,  1.0, 0.0,
+              1.0,  1.0, 0.0,
+             -1.0, -1.0, 0.0, 
+              1.0, -1.0, 0.0];
 
-var oldTextCoords = [0.0, 0.33,
-                     0.33, 0.33,
-                     0.0, 0.0,
-                     0.33, 0.0];
+var oldTextCoords = [0.0,  0.0,
+                    0.33,  0.0,
+                     0.0, 0.33,
+                    0.33, 0.33,];
 
-var newTextCoords = [0.33, 0.33,
-                     0.67, 0.33,
-                     0.33, 0.0,
-                     0.67, 0.0];
-
-var indices = [0, 1, 2,
-               1, 3, 2];
+var indices = [0, 2, 1,
+               0, 3, 1];
 
 class Boid
 {
     constructor(shaderProgram) 
     {
-        this.mesh = new Mesh(verts, oldTextCoords, indices, shaderProgram);
+        this.spriteAtlas = new SpriteAtlas("duckhunt1-image", 240, 240, 3, 3);
+        this.spriteAtlas.AdvanceAndGenerate(4);
+        this.mesh = new Mesh(verts, this.spriteAtlas.GetTextCoords(), indices, shaderProgram);
         this.acceleration = vec3.create();
         this.velocity = vec3.fromValues(this.RandomValueBetween(-1, 1), this.RandomValueBetween(-1, 1), 0);
         this.position = vec3.create();
@@ -52,8 +49,11 @@ class Boid
 
     Render(shaderProgram)
     {
+        this.spriteAtlas.BindAtlas(0);
         shaderProgram.SetUniformMatrix4fv('mWorld', this.modelMatrix);
+        shaderProgram.SetUniformToTextureUnit('desiredTexture', 0);
         this.mesh.Draw();
+        this.spriteAtlas.UnbindAtlas();
     }
 
     Flock(boids)
