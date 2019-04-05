@@ -1,7 +1,17 @@
-var verts = [-1.0, -1.0, 0.0, 0.0, 0.0, 
-              1.0, -1.0, 0.0, 1.0, 0.0,
-             -1.0,  1.0, 0.0, 0.0, 1.0, 
-              1.0,  1.0, 0.0, 1.0, 1.0];
+var verts = [-1.0, -1.0, 0.0, 
+              1.0, -1.0, 0.0,
+             -1.0,  1.0, 0.0,
+              1.0,  1.0, 0.0];
+
+var oldTextCoords = [0.0, 0.33,
+                     0.33, 0.33,
+                     0.0, 0.0,
+                     0.33, 0.0];
+
+var newTextCoords = [0.33, 0.33,
+                     0.67, 0.33,
+                     0.33, 0.0,
+                     0.67, 0.0];
 
 var indices = [0, 1, 2,
                1, 3, 2];
@@ -10,7 +20,8 @@ class Boid
 {
     constructor(shaderProgram) 
     {
-        this.mesh = new Mesh(verts, indices, shaderProgram);
+        this.mesh = new Mesh(verts, oldTextCoords, indices, shaderProgram);
+        this.mesh.RefillTextCoords(newTextCoords);
         this.acceleration = vec3.create();
         this.velocity = vec3.fromValues(this.RandomValueBetween(-1, 1), this.RandomValueBetween(-1, 1), 0);
         this.position = vec3.create();
@@ -35,9 +46,9 @@ class Boid
         this.modelMatrix[12] = this.position[0];
         this.modelMatrix[13] = this.position[1];
         this.modelMatrix[14] = this.position[2];
-        var angle = Math.atan2(this.velocity[1], this.velocity[0]) + (Math.PI / 2);
+        var angle = Math.atan2(this.velocity[1], this.velocity[0]) - (Math.PI / 2);
         mat4.rotate(this.modelMatrix, this.modelMatrix, angle, vec3.fromValues(0, 0, 1));
-        mat4.scale(this.modelMatrix, this.modelMatrix, vec3.fromValues(0.5, 0.5, 0.5));
+        mat4.scale(this.modelMatrix, this.modelMatrix, vec3.fromValues(1, 1, 1));
     }
 
     Render(shaderProgram)
