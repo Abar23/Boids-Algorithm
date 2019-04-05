@@ -46,7 +46,9 @@ var initCanvas = function() {
 	gl.enable(gl.DEPTH_TEST);
 	gl.enable(gl.CULL_FACE);
 	gl.frontFace(gl.CCW);
-    gl.cullFace(gl.BACK);  
+    gl.cullFace(gl.BACK); 
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); 
 }
 
 // animation loop

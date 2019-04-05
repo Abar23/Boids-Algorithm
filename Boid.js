@@ -37,7 +37,7 @@ class Boid
         this.modelMatrix[14] = this.position[2];
         var angle = Math.atan2(this.velocity[1], this.velocity[0]) + (Math.PI / 2);
         mat4.rotate(this.modelMatrix, this.modelMatrix, angle, vec3.fromValues(0, 0, 1));
-        mat4.scale(this.modelMatrix, this.modelMatrix, vec3.fromValues(0.4, 0.4, 0.4));
+        mat4.scale(this.modelMatrix, this.modelMatrix, vec3.fromValues(0.5, 0.5, 0.5));
     }
 
     Render(shaderProgram)
@@ -89,7 +89,7 @@ class Boid
 
     Separate(boids) 
     {
-        var desiredSeparation = 1;
+        var desiredSeparation = 1.5;
         var steerVector = vec3.create();
         var count = 0;
 
@@ -129,7 +129,7 @@ class Boid
 
     Align(boids)
     {
-        var neighborDistance = 2;
+        var neighborDistance = 3;
         var sumVector = vec3.create();
         var count = 0;
 
@@ -161,7 +161,7 @@ class Boid
 
     Cohesion(boids) 
     {        
-        var neighborDistance = 2;
+        var neighborDistance = 3;
         var sumVector = vec3.create();
         var count = 0;
 
