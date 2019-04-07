@@ -111,14 +111,16 @@ class Boid
     Flock(boids)
     {
         var desiredSeparation = 1.5;
-        var alignmentNeighborDistance = 3;
-        var cohesionNeighborDistance = 3;
         var separationSteerVector = vec3.create();
+        var numSeparationNeughbors = 0;
+
+        var alignmentNeighborDistance = 3;
         var alignmentSumVector = vec3.create();
+        var numAlignmentNeighbors = 0;
+        
+        var cohesionNeighborDistance = 3;
         var cohesionSumVector = vec3.create();
-        var count1 = 0;
-        var count2 = 0;
-        var count3 = 0;
+        var numCohesionNeighbors = 0;
 
         for(let i = 0; i < boids.length; i++)
         {
@@ -126,13 +128,13 @@ class Boid
             if (dist > 0 && dist < alignmentNeighborDistance)
             {
                 vec3.add(alignmentSumVector, alignmentSumVector, boids[i].velocity);
-                count1++;
+                numAlignmentNeighbors++;
             }
 
             if (dist > 0 && dist < cohesionNeighborDistance)
             {
                 vec3.add(cohesionSumVector, cohesionSumVector, boids[i].velocity);
-                count2++;
+                numCohesionNeighbors++;
             }
 
             if (dist > 0 && dist < desiredSeparation)
@@ -143,13 +145,13 @@ class Boid
                 vec3.normalize(diff, diff);
                 vec3.divide(diff, diff, distanceVector);
                 vec3.add(separationSteerVector, separationSteerVector, diff);
-                count3++;
+                numSeparationNeughbors++;
             }
         }
 
-        var separation = this.Separate(separationSteerVector, count1);
-        var alignment = this.Align(alignmentSumVector, count2);
-        var cohesion = this.Cohesion(cohesionSumVector, count3);
+        var separation = this.Separate(separationSteerVector, numAlignmentNeighbors);
+        var alignment = this.Align(alignmentSumVector, numCohesionNeighbors);
+        var cohesion = this.Cohesion(cohesionSumVector, numSeparationNeughbors);
         vec3.multiply(separation, separation, vec3.fromValues(1.5, 1.5, 1.5));
         vec3.multiply(alignment, alignment, vec3.fromValues(1.0, 1.0, 1.0));
         vec3.multiply(cohesion, cohesion, vec3.fromValues(1.0, 1.0, 1.0));
