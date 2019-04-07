@@ -110,10 +110,46 @@ class Boid
 
     Flock(boids)
     {
-        var distances = this.GetDistancesBetweenBoids(boids);
-        var separation = this.Separate(distances, boids);
-        var alignment = this.Align(distances, boids);
-        var cohesion = this.Cohesion(distances, boids);
+        var desiredSeparation = 1.5;
+        var alignmentNeighborDistance = 3;
+        var cohesionNeighborDistance = 3;
+        var separationSteerVector = vec3.create();
+        var alignmentSumVector = vec3.create();
+        var cohesionSumVector = vec3.create();
+        var count1 = 0;
+        var count2 = 0;
+        var count3 = 0;
+
+        for(let i = 0; i < boids.length; i++)
+        {
+            var dist = vec3.distance(this.position, boids[i].position);
+            if (dist > 0 && dist < alignmentNeighborDistance)
+            {
+                vec3.add(alignmentSumVector, alignmentSumVector, boids[i].velocity);
+                count1++;
+            }
+
+            if (dist > 0 && dist < cohesionNeighborDistance)
+            {
+                vec3.add(cohesionSumVector, cohesionSumVector, boids[i].velocity);
+                count2++;
+            }
+
+            if (dist > 0 && dist < desiredSeparation)
+            {
+                var distanceVector = vec3.fromValues(dist, dist, dist);
+                var diff = vec3.create();
+                vec3.subtract(diff, this.position, boids[i].position);
+                vec3.normalize(diff, diff);
+                vec3.divide(diff, diff, distanceVector);
+                vec3.add(separationSteerVector, separationSteerVector, diff);
+                count3++;
+            }
+        }
+
+        var separation = this.Separate(separationSteerVector, count1);
+        var alignment = this.Align(alignmentSumVector, count2);
+        var cohesion = this.Cohesion(cohesionSumVector, count3);
         vec3.multiply(separation, separation, vec3.fromValues(1.5, 1.5, 1.5));
         vec3.multiply(alignment, alignment, vec3.fromValues(1.0, 1.0, 1.0));
         vec3.multiply(cohesion, cohesion, vec3.fromValues(1.0, 1.0, 1.0));
@@ -150,37 +186,8 @@ class Boid
         this.Render(shaderProgram);
     }
 
-    GetDistancesBetweenBoids(boids)
+    Separate(steerVector, count) 
     {
-        var distances = [];
-        for(let i = 0; i < boids.length; i++)
-        {
-            distances.push(vec3.distance(this.position, boids[i].position));
-        }
-        return distances;
-    }
-
-    Separate(distances, boids) 
-    {
-        var desiredSeparation = 1.5;
-        var steerVector = vec3.create();
-        var count = 0;
-
-        for (var i = 0; i < boids.length; i++)
-        {
-            var dist = distances[i];
-            if (dist > 0 && dist < desiredSeparation)
-            {
-                var distanceVector = vec3.fromValues(dist, dist, dist);
-                var diff = vec3.create();
-                vec3.subtract(diff, this.position, boids[i].position);
-                vec3.normalize(diff, diff);
-                vec3.divide(diff, diff, distanceVector);
-                vec3.add(steerVector, steerVector, diff);
-                count++;
-            }
-        }
-
         if (count > 0)
         {
             var countVector = vec3.fromValues(count, count, count);
@@ -199,22 +206,8 @@ class Boid
         return steerVector;
     }
 
-    Align(distances, boids)
+    Align(sumVector, count)
     {
-        var neighborDistance = 3;
-        var sumVector = vec3.create();
-        var count = 0;
-
-        for (var i = 0; i < boids.length; i++) 
-        {
-            var dist = distances[i];
-            if (dist > 0 && dist < neighborDistance)
-            {
-                vec3.add(sumVector, sumVector, boids[i].velocity);
-                count++;
-            }
-        }
-
         var steerVector = vec3.create();
         if (count > 0)
         {
@@ -230,22 +223,8 @@ class Boid
         return steerVector;
     }
 
-    Cohesion(distances, boids) 
+    Cohesion(sumVector, count) 
     {        
-        var neighborDistance = 3;
-        var sumVector = vec3.create();
-        var count = 0;
-
-        for (var i = 0; i < boids.length; i++) 
-        {
-            var dist = distances[i];
-            if (dist > 0 && dist < neighborDistance)
-            {
-                vec3.add(sumVector, sumVector, boids[i].position);
-                count++;
-            }
-        }
-
         var steerVector = vec3.create();
         if (count > 0)
         {
