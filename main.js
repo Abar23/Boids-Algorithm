@@ -22,8 +22,8 @@ var start = function() {
     program = new Shader('vertShader', 'fragShader');
     program.UseProgram();
 
-    flock = new Flock(400, program);
-    cloudBatch = new CloudBatch(15, program);
+    flock = new Flock(300, program);
+    cloudBatch = new CloudBatch(20, program);
 
     projectionMatrix = mat4.create();
     mat4.perspective(projectionMatrix, Math.PI / 4, aspectRatio, 0.01, 100);
