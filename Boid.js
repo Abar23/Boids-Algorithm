@@ -37,12 +37,58 @@ class Boid
         this.modelMatrix[12] = this.position[0];
         this.modelMatrix[13] = this.position[1];
         this.modelMatrix[14] = this.position[2];
-        var angle = Math.atan2(this.velocity[1], this.velocity[0]) - (Math.PI / 2);
-        mat4.rotate(this.modelMatrix, this.modelMatrix, angle, vec3.fromValues(0, 0, 1));
-        mat4.scale(this.modelMatrix, this.modelMatrix, vec3.fromValues(1.0, 1.0, 1.0));
 
+        var angle = Math.atan2(this.velocity[1], this.velocity[0]) * (180 / Math.PI);
+        var evaluationAngle = Math.abs(angle);
+
+        if(evaluationAngle > 0 && evaluationAngle < 30)
+        {
+            this.factory.ChangeAnimation(DUCK_ANIMATION_1);
+            mat4.rotate(this.modelMatrix, this.modelMatrix, (angle - (Math.PI / 2)) * (Math.PI/180), vec3.fromValues(0, 0, 1));
+        }
+        else if(evaluationAngle > 30 && evaluationAngle < 60)
+        {
+            this.factory.ChangeAnimation(DUCK_ANIMATION_2);
+            if(angle < 0)
+            {
+                mat4.rotate(this.modelMatrix, this.modelMatrix, ((30 + angle) - (Math.PI / 2)) * (Math.PI/180), vec3.fromValues(0, 0, 1));
+                mat4.rotate(this.modelMatrix, this.modelMatrix, -2 * (Math.PI / 4), vec3.fromValues(0, 0, 1));
+            }
+            else
+            {
+                mat4.rotate(this.modelMatrix, this.modelMatrix, ((angle - 30) - (Math.PI / 2)) * (Math.PI/180), vec3.fromValues(0, 0, 1));
+            }
+        }
+        else if(evaluationAngle > 60 && evaluationAngle < 120)
+        {
+            this.factory.ChangeAnimation(DUCK_ANIMATION_3);
+            if(angle < 0)
+            {
+                mat4.rotate(this.modelMatrix, this.modelMatrix, Math.PI, vec3.fromValues(0, 0, 1));
+            }
+        }
+        else if(evaluationAngle > 120 && evaluationAngle < 150)
+        {
+            this.factory.ChangeAnimation(DUCK_ANIMATION_5);
+            if(angle < 0)
+            {
+                mat4.rotate(this.modelMatrix, this.modelMatrix, ((120 + angle) - (Math.PI / 2)) * (Math.PI/180), vec3.fromValues(0, 0, 1));
+                mat4.rotate(this.modelMatrix, this.modelMatrix, 2 * (Math.PI / 4), vec3.fromValues(0, 0, 1));
+            }
+            else
+            {
+                mat4.rotate(this.modelMatrix, this.modelMatrix, ((angle - 120) - (Math.PI / 2)) * (Math.PI/180), vec3.fromValues(0, 0, 1));
+            }
+        }
+        else if(evaluationAngle > 150 && evaluationAngle < 180)
+        {
+            this.factory.ChangeAnimation(DUCK_ANIMATION_4);
+            mat4.rotate(this.modelMatrix, this.modelMatrix, (angle + 180) * (Math.PI/180), vec3.fromValues(0, 0, 1));
+        }
         this.texCoords = this.factory.Update();
         this.mesh.RefillTextCoords(this.texCoords);
+
+        mat4.scale(this.modelMatrix, this.modelMatrix, vec3.fromValues(1.0, 1.0, 1.0));
     }
 
     Render(shaderProgram)
@@ -50,6 +96,7 @@ class Boid
         this.factory.BindAtlas(0);
         shaderProgram.SetUniformMatrix4fv('mWorld', this.modelMatrix);
         shaderProgram.SetUniformToTextureUnit('desiredTexture', 0);
+
         this.mesh.Draw();
         this.factory.UnbindAtlas();
     }

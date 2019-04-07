@@ -7,7 +7,7 @@ const DUCK_ANIMATION_5 = 12;
 const NUM_ANIMATION_FRAMES = 3;
 const NUM_MILLIS_PER_FRAME = 100;
 
-class Factory 
+class DuckAnimationFactory 
 {
     constructor(spriteAtlas)
     {
@@ -25,7 +25,7 @@ class Factory
         if(this.elapesTime > NUM_MILLIS_PER_FRAME)
         {
             this.currentFrame++;
-            if((this.currentFrame - this.startingFrame) > NUM_ANIMATION_FRAMES - 1)
+            if(this.currentFrame == (NUM_ANIMATION_FRAMES - 1))
             {
                 this.currentFrame = 0;
             }

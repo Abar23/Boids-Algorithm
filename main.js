@@ -22,7 +22,7 @@ var start = function() {
     program = new Shader('vertShader', 'fragShader');
     program.UseProgram();
 
-    flock = new Flock(100, program);
+    flock = new Flock(10, program);
     cloudBatch = new CloudBatch(15, program);
 
     projectionMatrix = mat4.create();

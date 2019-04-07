@@ -2,9 +2,9 @@ class Flock
 {
     constructor(numberOfBoids, shaderProgram)
     {
-        this.factory1 = new Factory(new SpriteAtlas("duckhunt1-image", 400, 240, 3, 5));
-        this.factory2 = new Factory(new SpriteAtlas("duckhunt2-image", 400, 240, 3, 5));
-        this.factory3 = new Factory(new SpriteAtlas("duckhunt3-image", 400, 240, 3, 5));
+        this.factory1 = new DuckAnimationFactory(new SpriteAtlas("duckhunt1-image", 400, 240, 3, 5));
+        this.factory2 = new DuckAnimationFactory(new SpriteAtlas("duckhunt2-image", 400, 240, 3, 5));
+        this.factory3 = new DuckAnimationFactory(new SpriteAtlas("duckhunt3-image", 400, 240, 3, 5));
 
         this.shader = shaderProgram;
         this.boids = [];
