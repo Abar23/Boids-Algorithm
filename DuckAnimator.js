@@ -7,9 +7,9 @@ const DUCK_ANIMATION_5 = 12;
 const NUM_ANIMATION_FRAMES = 3;
 const NUM_MILLIS_PER_FRAME = 100;
 
-class DuckAnimationFactory 
+class DuckAnimator 
 {
-    constructor(spriteAtlas)
+    constructor(spriteAtlas, mesh)
     {
         this.startingFrame = 0;
         this.currentFrame = 0;
@@ -18,21 +18,21 @@ class DuckAnimationFactory
         this.elapesTime = 0;
     }
 
-    Update()
+    Update(mesh)
     {
         this.elapesTime += this.timer.GetTimeInMillis();
 
         if(this.elapesTime > NUM_MILLIS_PER_FRAME)
         {
             this.currentFrame++;
-            if(this.currentFrame == (NUM_ANIMATION_FRAMES - 1))
+            if(this.currentFrame == NUM_ANIMATION_FRAMES)
             {
                 this.currentFrame = 0;
             }
             this.elapesTime = 0;
-        }
 
-        return this.GetTextCoords();
+            mesh.RefillTextCoords(this.GetTextCoords());
+        }
     }
 
     ChangeAnimation(newAnimationFrame)
@@ -42,8 +42,7 @@ class DuckAnimationFactory
 
     GetTextCoords()
     {
-        this.spriteAtlas.AdvanceAndGenerate(this.currentFrame + this.startingFrame);
-        return this.spriteAtlas.GetTextCoords();
+        return this.spriteAtlas.GetTextCoordsForSprite(this.currentFrame + this.startingFrame);
     }
 
     BindAtlas(textureUnit)

@@ -6,13 +6,19 @@ var verts = [-1.0,  1.0, 0.0,
 var indices = [0, 2, 1,
                1, 2, 3];
 
+const TWO_PI = 2 * Math.PI;
+const PI_OVER_TWO = Math.PI / 2;
+const PI_OVER_FOUR = Math.PI / 4;
+const RAD_TO_DEGREES_RATIO = 180 / Math.PI;
+const DEGREES_TO_RAD_RATIO = Math.PI / 180;
+
 class Boid
 {
-    constructor(shaderProgram, factory) 
+    constructor(shaderProgram, spriteAtlas) 
     {
-        this.factory = factory;
-        this.texCoords = this.factory.GetTextCoords();
-        this.mesh = new Mesh(verts, this.texCoords, indices, shaderProgram);
+        this.spriteAtlas = spriteAtlas;
+        this.animator = new DuckAnimator(this.spriteAtlas, this.mesh);
+        this.mesh = new Mesh(verts, this.animator.GetTextCoords(), indices, shaderProgram);
         this.acceleration = vec3.create();
         this.velocity = vec3.fromValues(this.RandomValueBetween(-1, 1), this.RandomValueBetween(-1, 1), 0);
         this.position = vec3.create();
@@ -32,80 +38,82 @@ class Boid
         this.Limit(this.velocity, this.maxSpeed);
         vec3.add(this.position, this.position, this.velocity);
         vec3.set(this.acceleration, 0, 0, 0);
+
+        var headingAngle = Math.atan2(this.velocity[1], this.velocity[0]) * RAD_TO_DEGREES_RATIO;
+        var evaluationAngle = Math.abs(headingAngle);
+        if(evaluationAngle > 0 && evaluationAngle < 30)
+        {
+            this.animator.ChangeAnimation(DUCK_ANIMATION_1);
+            headingAngle = (headingAngle) * DEGREES_TO_RAD_RATIO;
+        }
+        else if(evaluationAngle > 30 && evaluationAngle < 60)
+        {
+            this.animator.ChangeAnimation(DUCK_ANIMATION_2);
+            if(headingAngle < 0)
+            {
+                headingAngle = ((headingAngle + 30) * DEGREES_TO_RAD_RATIO) + (-2 * PI_OVER_FOUR);
+            }
+            else
+            {
+                headingAngle = (headingAngle - 30) * DEGREES_TO_RAD_RATIO;
+            }
+        }
+        else if(evaluationAngle > 60 && evaluationAngle < 120)
+        {
+            this.animator.ChangeAnimation(DUCK_ANIMATION_3);
+            if(headingAngle < 0)
+            {
+                headingAngle = Math.PI;
+            }
+            else
+            {
+                headingAngle = 0;
+            }
+        }
+        else if(evaluationAngle > 120 && evaluationAngle < 150)
+        {
+            this.animator.ChangeAnimation(DUCK_ANIMATION_5);
+            if(headingAngle < 0)
+            {
+                headingAngle = ((headingAngle + 120) * DEGREES_TO_RAD_RATIO) + (2 * PI_OVER_FOUR);
+            }
+            else
+            {
+                headingAngle = (headingAngle - 120) * DEGREES_TO_RAD_RATIO;
+            }
+        }
+        else if(evaluationAngle > 150 && evaluationAngle < 180)
+        {
+            this.animator.ChangeAnimation(DUCK_ANIMATION_4);
+            headingAngle = (headingAngle + 180) * DEGREES_TO_RAD_RATIO;
+        }
+
+        this.animator.Update(this.mesh);
         
         this.modelMatrix = mat4.create();
         this.modelMatrix[12] = this.position[0];
         this.modelMatrix[13] = this.position[1];
         this.modelMatrix[14] = this.position[2];
-
-        var angle = Math.atan2(this.velocity[1], this.velocity[0]) * (180 / Math.PI);
-        var evaluationAngle = Math.abs(angle);
-
-        if(evaluationAngle > 0 && evaluationAngle < 30)
-        {
-            this.factory.ChangeAnimation(DUCK_ANIMATION_1);
-            mat4.rotate(this.modelMatrix, this.modelMatrix, (angle - (Math.PI / 2)) * (Math.PI/180), vec3.fromValues(0, 0, 1));
-        }
-        else if(evaluationAngle > 30 && evaluationAngle < 60)
-        {
-            this.factory.ChangeAnimation(DUCK_ANIMATION_2);
-            if(angle < 0)
-            {
-                mat4.rotate(this.modelMatrix, this.modelMatrix, ((30 + angle) - (Math.PI / 2)) * (Math.PI/180), vec3.fromValues(0, 0, 1));
-                mat4.rotate(this.modelMatrix, this.modelMatrix, -2 * (Math.PI / 4), vec3.fromValues(0, 0, 1));
-            }
-            else
-            {
-                mat4.rotate(this.modelMatrix, this.modelMatrix, ((angle - 30) - (Math.PI / 2)) * (Math.PI/180), vec3.fromValues(0, 0, 1));
-            }
-        }
-        else if(evaluationAngle > 60 && evaluationAngle < 120)
-        {
-            this.factory.ChangeAnimation(DUCK_ANIMATION_3);
-            if(angle < 0)
-            {
-                mat4.rotate(this.modelMatrix, this.modelMatrix, Math.PI, vec3.fromValues(0, 0, 1));
-            }
-        }
-        else if(evaluationAngle > 120 && evaluationAngle < 150)
-        {
-            this.factory.ChangeAnimation(DUCK_ANIMATION_5);
-            if(angle < 0)
-            {
-                mat4.rotate(this.modelMatrix, this.modelMatrix, ((120 + angle) - (Math.PI / 2)) * (Math.PI/180), vec3.fromValues(0, 0, 1));
-                mat4.rotate(this.modelMatrix, this.modelMatrix, 2 * (Math.PI / 4), vec3.fromValues(0, 0, 1));
-            }
-            else
-            {
-                mat4.rotate(this.modelMatrix, this.modelMatrix, ((angle - 120) - (Math.PI / 2)) * (Math.PI/180), vec3.fromValues(0, 0, 1));
-            }
-        }
-        else if(evaluationAngle > 150 && evaluationAngle < 180)
-        {
-            this.factory.ChangeAnimation(DUCK_ANIMATION_4);
-            mat4.rotate(this.modelMatrix, this.modelMatrix, (angle + 180) * (Math.PI/180), vec3.fromValues(0, 0, 1));
-        }
-        this.texCoords = this.factory.Update();
-        this.mesh.RefillTextCoords(this.texCoords);
-
+        mat4.rotate(this.modelMatrix, this.modelMatrix, headingAngle, vec3.fromValues(0, 0, 1));
         mat4.scale(this.modelMatrix, this.modelMatrix, vec3.fromValues(1.0, 1.0, 1.0));
     }
 
     Render(shaderProgram)
     {
-        this.factory.BindAtlas(0);
+        this.animator.BindAtlas(0);
         shaderProgram.SetUniformMatrix4fv('mWorld', this.modelMatrix);
         shaderProgram.SetUniformToTextureUnit('desiredTexture', 0);
 
         this.mesh.Draw();
-        this.factory.UnbindAtlas();
+        this.animator.UnbindAtlas();
     }
 
     Flock(boids)
     {
-        var separation = this.Separate(boids);
-        var alignment = this.Align(boids);
-        var cohesion = this.Cohesion(boids);
+        var distances = this.GetDistancesBetweenBoids(boids);
+        var separation = this.Separate(distances, boids);
+        var alignment = this.Align(distances, boids);
+        var cohesion = this.Cohesion(distances, boids);
         vec3.multiply(separation, separation, vec3.fromValues(1.5, 1.5, 1.5));
         vec3.multiply(alignment, alignment, vec3.fromValues(1.0, 1.0, 1.0));
         vec3.multiply(cohesion, cohesion, vec3.fromValues(1.0, 1.0, 1.0));
@@ -142,7 +150,17 @@ class Boid
         this.Render(shaderProgram);
     }
 
-    Separate(boids) 
+    GetDistancesBetweenBoids(boids)
+    {
+        var distances = [];
+        for(let i = 0; i < boids.length; i++)
+        {
+            distances.push(vec3.distance(this.position, boids[i].position));
+        }
+        return distances;
+    }
+
+    Separate(distances, boids) 
     {
         var desiredSeparation = 1.5;
         var steerVector = vec3.create();
@@ -150,7 +168,7 @@ class Boid
 
         for (var i = 0; i < boids.length; i++)
         {
-            var dist = vec3.distance(this.position, boids[i].position);
+            var dist = distances[i];
             if (dist > 0 && dist < desiredSeparation)
             {
                 var distanceVector = vec3.fromValues(dist, dist, dist);
@@ -165,8 +183,7 @@ class Boid
 
         if (count > 0)
         {
-            var countVector = vec3.create();
-            vec3.set(countVector, count, count, count);
+            var countVector = vec3.fromValues(count, count, count);
             vec3.divide(steerVector, steerVector, countVector);
         }
 
@@ -182,7 +199,7 @@ class Boid
         return steerVector;
     }
 
-    Align(boids)
+    Align(distances, boids)
     {
         var neighborDistance = 3;
         var sumVector = vec3.create();
@@ -190,7 +207,7 @@ class Boid
 
         for (var i = 0; i < boids.length; i++) 
         {
-            var dist = vec3.distance(this.position, boids[i].position);
+            var dist = distances[i];
             if (dist > 0 && dist < neighborDistance)
             {
                 vec3.add(sumVector, sumVector, boids[i].velocity);
@@ -202,8 +219,7 @@ class Boid
         if (count > 0)
         {
             var maxSpeedVector = vec3.fromValues(this.maxSpeed, this.maxSpeed, this.maxSpeed);
-            var countVector = vec3.create();
-            vec3.set(countVector, count, count, count);
+            var countVector = vec3.fromValues(count, count, count);
             vec3.divide(sumVector, sumVector, countVector);
             vec3.normalize(sumVector, sumVector);
             vec3.multiply(sumVector, sumVector, maxSpeedVector);
@@ -214,7 +230,7 @@ class Boid
         return steerVector;
     }
 
-    Cohesion(boids) 
+    Cohesion(distances, boids) 
     {        
         var neighborDistance = 3;
         var sumVector = vec3.create();
@@ -222,7 +238,7 @@ class Boid
 
         for (var i = 0; i < boids.length; i++) 
         {
-            var dist = vec3.distance(this.position, boids[i].position);
+            var dist = distances[i];
             if (dist > 0 && dist < neighborDistance)
             {
                 vec3.add(sumVector, sumVector, boids[i].position);
@@ -234,8 +250,7 @@ class Boid
         if (count > 0)
         {
             var maxSpeedVector = vec3.fromValues(this.maxSpeed, this.maxSpeed, this.maxSpeed);
-            var countVector = vec3.create();
-            vec3.set(countVector, count, count, count);
+            var countVector = vec3.fromValues(count, count, count);
             vec3.divide(sumVector, sumVector, countVector);
 
             var desired = vec3.create();
@@ -258,6 +273,5 @@ class Boid
             vec3.scale(vector, vector, scaleRatio);
         }
     }
-
 }
 

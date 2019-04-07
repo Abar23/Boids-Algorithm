@@ -2,9 +2,9 @@ class Flock
 {
     constructor(numberOfBoids, shaderProgram)
     {
-        this.factory1 = new DuckAnimationFactory(new SpriteAtlas("duckhunt1-image", 400, 240, 3, 5));
-        this.factory2 = new DuckAnimationFactory(new SpriteAtlas("duckhunt2-image", 400, 240, 3, 5));
-        this.factory3 = new DuckAnimationFactory(new SpriteAtlas("duckhunt3-image", 400, 240, 3, 5));
+        var spriteAtlas1 = new SpriteAtlas("duckhunt1-image", 400, 240, 3, 5);
+        var spriteAtlas2 = new SpriteAtlas("duckhunt2-image", 400, 240, 3, 5);
+        var spriteAtlas3 = new SpriteAtlas("duckhunt3-image", 400, 240, 3, 5);
 
         this.shader = shaderProgram;
         this.boids = [];
@@ -14,16 +14,16 @@ class Flock
             switch(num) 
             {
                 case 1:
-                    this.boids[i] = new Boid(this.shader, this.factory1);
+                    this.boids[i] = new Boid(this.shader, spriteAtlas1);
                     break;
                 case 2:
-                    this.boids[i] = new Boid(this.shader, this.factory2);
+                    this.boids[i] = new Boid(this.shader, spriteAtlas2);
                     break;
                 case 3:
-                    this.boids[i] = new Boid(this.shader, this.factory3);
+                    this.boids[i] = new Boid(this.shader, spriteAtlas3);
                     break;
                 default:
-                    this.boids[i] = new Boid(this.shader, this.factory1);
+                    this.boids[i] = new Boid(this.shader, spriteAtlas1);
                     break;
             }
         }

@@ -7,73 +7,51 @@ class SpriteAtlas
         numSpritesAlongY)
     {
         this.textureAtlas = new Texture(textureId);
+        this.spritesTextCoords = [];
 
-        this.numSpritesAlongX = numSpritesAlongX;
-        this.numSpritesAlongY = numSpritesAlongY;
+        var spriteHeight = (textureHeight / numSpritesAlongY);
+        var spriteWidth = (textureWidth /  numSpritesAlongX);
 
-        var spriteHeight = (textureHeight / this.numSpritesAlongY);
-        var spriteWidth = (textureWidth /  this.numSpritesAlongX);
-
-        this.normalizedSpriteHeight = spriteHeight / textureHeight;
-        this.normalizedSpriteWidth = spriteWidth / textureWidth;
+        var normalizedSpriteHeight = spriteHeight / textureHeight;
+        var normalizedSpriteWidth = spriteWidth / textureWidth;
         
-        this.numAdvances = (textureHeight * textureWidth) / (spriteHeight * spriteWidth);
-
-        this.startPoint = [0, 0];
-        this.textCords = [];
-
-        this.GenerateTextCoords();
+        this.GenerateAllSpriteTextCoords(numSpritesAlongX * numSpritesAlongY, normalizedSpriteHeight, normalizedSpriteWidth);
     }
 
-    AdvanceAndGenerate(desiredNumberOfAdvances)
+    GenerateAllSpriteTextCoords(numberOfSprites, normalizedSpriteHeight, normalizedSpriteWidth)
     {
-        if(desiredNumberOfAdvances > this.numAdvances || desiredNumberOfAdvances < 0)
+        var xPosition = 0;
+        var yPosition = 0;
+        for(let i = 0; i < numberOfSprites; i++)
         {
-            desiredNumberOfAdvances = 0;
-        }
+            var textCoords = [];
+            // Top left corner
+            textCoords.push(xPosition);
+            textCoords.push(yPosition);
+            // Top right corner
+            textCoords.push(xPosition + normalizedSpriteWidth);
+            textCoords.push(yPosition);
+            // Bottom left corner
+            textCoords.push(xPosition);
+            textCoords.push(yPosition + normalizedSpriteHeight);
+            // Bottom right corner
+            textCoords.push(xPosition + normalizedSpriteWidth);
+            textCoords.push(yPosition + normalizedSpriteHeight);
 
-        var xPosition = this.startPoint[0];
-        var yPosition = this.startPoint[1];
-        for(let i = 0; i < desiredNumberOfAdvances; i++)
-        {
-            xPosition += this.normalizedSpriteWidth;
+            this.spritesTextCoords.push(textCoords);
+            
+            xPosition += normalizedSpriteWidth;
             
             if(xPosition >= 1)
             {
                 xPosition = 0;
-                yPosition += this.normalizedSpriteHeight;
+                yPosition += normalizedSpriteHeight;
             }
         }
-
-        this.startPoint[0] = xPosition;
-        this.startPoint[1] = yPosition;
-
-        this.GenerateTextCoords();
-
-        this.startPoint[0] = 0;
-        this.startPoint[1] = 0;
     }
 
-    GenerateTextCoords()
+    GetTextCoordsForSprite(spriteIndex)
     {
-        var startPointX = this.startPoint[0];
-        var startPointY = this.startPoint[1];
-        // Top left corner
-        this.textCords[0] = startPointX;
-        this.textCords[1] = startPointY;
-        // Top right corner
-        this.textCords[2] = startPointX + this.normalizedSpriteWidth;
-        this.textCords[3] = startPointY;
-        // Bottom left corner
-        this.textCords[4] = startPointX;
-        this.textCords[5] = startPointY + this.normalizedSpriteHeight;
-        // Bottom right corner
-        this.textCords[6] = startPointX + this.normalizedSpriteWidth;
-        this.textCords[7] = startPointY + this.normalizedSpriteHeight;
-    }
-
-    GetTextCoords()
-    {
-        return this.textCords;
+        return this.spritesTextCoords[spriteIndex];
     }
 }
