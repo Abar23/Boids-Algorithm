@@ -25,7 +25,7 @@ class Cloud
     {
         vec3.add(this.position, this.position, this.velocity);
         this.modelMatrix = mat4.create();
-        
+
         if(btn.textContent === "Exit VR")
         {   
             var cylinderCoords = planeToCylinderMapper.ConvertPlaneCoordsToCylinder(this.position);
@@ -33,6 +33,9 @@ class Cloud
             this.modelMatrix[12] = cylinderCoords[0];
             this.modelMatrix[13] = cylinderCoords[1];
             this.modelMatrix[14] = cylinderCoords[2];
+
+            //var angle = planeToCylinderMapper.GetAngle(this.position[0]);
+            //mat4.scale(this.modelMatrix, this.modelMatrix, angle, vec3.fromValues(0, 1, 0));
         }
         else if(btn.textContent === "Start VR")
         {
@@ -41,6 +44,7 @@ class Cloud
             this.modelMatrix[14] = this.position[2];
         }
 
+        
         mat4.scale(this.modelMatrix, this.modelMatrix, vec3.fromValues(this.scale, this.scale, this.scale));
     }
 

@@ -22,7 +22,7 @@ var canvas,
     planeToCylinderMapper;
 
 var flock, cloudBatch;
-var frameData, vrDisplay, normalSceneFrame, vrSceneFrame;
+var frameData, vrDisplay, normalSceneFrame, vrSceneFrame, curOrient;
 var btn = document.querySelector('.stop-start');
 
 // start() is the main function that gets called first by index.html
@@ -105,9 +105,9 @@ var initCanvas = function() {
     gl.clearColor(0.53, 0.81, 0.92, 1.0);   // sky blue
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	gl.enable(gl.DEPTH_TEST);
-	gl.enable(gl.CULL_FACE);
+	//gl.enable(gl.CULL_FACE);
 	gl.frontFace(gl.CCW);
-    gl.cullFace(gl.BACK); 
+    //gl.cullFace(gl.BACK); 
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); 
 }
@@ -143,7 +143,7 @@ var drawVRScene = function() {
     vrDisplay.getFrameData(frameData);
     var curFramePose = frameData.pose;
     var curPos = curFramePose.position;
-    var curOrient = curFramePose.orientation;
+    curOrient = curFramePose.orientation;
 
     gl.clearColor(0.53, 0.81, 0.92, 1.0);   // sky blue
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
