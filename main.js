@@ -9,6 +9,8 @@ var canvas,
     aspectRatio;
 
 var flock, cloudBatch;
+var frameData, vrDisplay, normalSceneFrame, vrSceneFrame;
+var btn = document.querySelector('.stop-start');
 
 // start() is the main function that gets called first by index.html
 var start = function() {
@@ -24,14 +26,55 @@ var start = function() {
 
     flock = new Flock(40, program);
     cloudBatch = new CloudBatch(20, program);
-	
-    projectionMatrix = mat4.create();
-    mat4.perspective(projectionMatrix, Math.PI / 4, aspectRatio, 0.01, 100);
-    
-    viewMatrix = mat4.create();
-    mat4.translate(viewMatrix, viewMatrix, vec3.fromValues(0, 0, -30));
 
-    requestAnimationFrame(animate);
+    drawScene();
+    //requestAnimationFrame(drawScene);
+
+    if(navigator.getVRDisplays) {
+        console.log('WebVR 1.1 supported');
+        frameData = new VRFrameData();
+        // Then get the displays attached to the computer
+        navigator.getVRDisplays().then(function(displays) {
+            // If a display is available, use it to present the scene
+            if(displays.length > 0) {
+                vrDisplay = displays[0];
+                console.log('Display found');
+                // Starting the presentation when the button is clicked: It can only be called in response to a user gesture
+                btn.addEventListener('click', function() {
+                    if(btn.textContent === 'Start VR') {
+                        vrDisplay.requestPresent([{ source: canvas }]).then(function() {
+                            console.log('Presenting to WebVR display');
+
+                            // Set the canvas size to the size of the vrDisplay viewport
+
+                            var leftEye = vrDisplay.getEyeParameters('left');
+                            var rightEye = vrDisplay.getEyeParameters('right');
+
+                            canvas.width = Math.max(leftEye.renderWidth, rightEye.renderWidth) * 2;
+                            canvas.height = Math.max(leftEye.renderHeight, rightEye.renderHeight);
+
+                            // stop the normal presentation, and start the vr presentation
+                            window.cancelAnimationFrame(normalSceneFrame);
+                            drawVRScene();
+
+                            btn.textContent = 'Exit VR';
+                        });
+                    } else {
+                        vrDisplay.exitPresent();
+                        console.log('Stopped presenting to WebVR display');
+
+                        btn.textContent = 'Start VR';
+
+                        // Stop the VR presentation, and start the normal presentation
+                        vrDisplay.cancelAnimationFrame(vrSceneFrame);
+                        drawScene();
+                    }
+                });
+            }
+        });
+    } else {
+        console.log('WebVR API not supported by this browser.');
+    }
 };
 
 // starts the canvas and gl
@@ -49,21 +92,63 @@ var initCanvas = function() {
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); 
 }
 
-// animation loop
-var animate = function() {
+// regular animation loop
+var drawScene = function() {
+    normalSceneFrame = window.requestAnimationFrame(drawScene);
 
     resize(gl.canvas);
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     gl.clearColor(0.53, 0.81, 0.92, 1.0);   // sky blue
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+    projectionMatrix = mat4.create();
+    mat4.perspective(projectionMatrix, Math.PI / 4, aspectRatio, 0.01, 100);
+    
+    viewMatrix = mat4.create();
+    mat4.translate(viewMatrix, viewMatrix, vec3.fromValues(0, 0, -17.5));
+
     program.SetUniformMatrix4fv('mView', viewMatrix);
     program.SetUniformMatrix4fv('mProj', projectionMatrix);
     
     flock.Update();
     cloudBatch.Update();
+}
 
-    requestAnimationFrame(animate);
+// WebVR animation loop
+var drawVRScene = function() {
+    vrSceneFrame = vrDisplay.requestAnimationFrame(drawVRScene);
+    vrDisplay.getFrameData(frameData);
+    var curFramePose = frameData.pose;
+    var curPos = curFramePose.position;
+    var curOrient = curFramePose.orientation;
+
+    gl.clearColor(0.53, 0.81, 0.92, 1.0);   // sky blue
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    // left eye
+    gl.viewport(0, 0, canvas.width * 0.5, canvas.height);
+    program.SetUniformMatrix4fv('mView', frameData.leftViewMatrix);
+    program.SetUniformMatrix4fv('mProj', frameData.leftProjectionMatrix);
+    drawGeometry();
+
+    // right eye
+    gl.viewport(canvas.width * 0.5, 0, canvas.width * 0.5, canvas.height);
+    program.SetUniformMatrix4fv('mView', frameData.rightViewMatrix);
+    program.SetUniformMatrix4fv('mProj', frameData.rightProjectionMatrix);
+    drawGeometry();
+
+    function drawGeometry() {
+        projectionMatrix = mat4.create();
+        mat4.perspective(projectionMatrix, Math.PI / 4, aspectRatio, 0.01, 100);
+        viewMatrix = mat4.create();
+        mat4.translate(viewMatrix, viewMatrix, vec3.fromValues(0.0 - (curPos[0] * 25) + (curOrient[1] * 25), 
+                                                               5.0 - (curPos[1] * 25) - (curOrient[0] * 25), 
+                                                               0.0 - (curPos[2] * 25)));
+        flock.Update();
+        cloudBatch.Update();
+    }
+
+    vrDisplay.submitFrame();
 }
 
 // resizes canvas to fit browser window

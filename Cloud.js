@@ -10,7 +10,7 @@ class Cloud
         this.modelMatrix = mat4.create();
         this.scale = scale;
         this.maxSpeed = 0.2;
-        this.position = vec3.fromValues(this.RandomValueBetween(-20, 20), this.RandomValueBetween(-20, 20), 0);
+        this.position = vec3.fromValues(this.RandomValueBetween(-20, 20), this.RandomValueBetween(-20, 20), -12.5);
         var x = this.RandomValueBetween(-0.03, 0.03);
         this.velocity = vec3.fromValues(x, 0, 0);
     }

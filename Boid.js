@@ -93,7 +93,7 @@ class Boid
         this.modelMatrix = mat4.create();
         this.modelMatrix[12] = this.position[0];
         this.modelMatrix[13] = this.position[1];
-        this.modelMatrix[14] = this.position[2];
+        this.modelMatrix[14] = -12.5;
         mat4.rotate(this.modelMatrix, this.modelMatrix, headingAngle, vec3.fromValues(0, 0, 1));
         mat4.scale(this.modelMatrix, this.modelMatrix, vec3.fromValues(1.0, 1.0, 1.0));
     }
