@@ -1,3 +1,15 @@
+const TWO_PI = 2 * Math.PI;
+const PI_OVER_TWO = Math.PI / 2;
+const PI_OVER_FOUR = Math.PI / 4;
+const RAD_TO_DEGREES_RATIO = 180 / Math.PI;
+const DEGREES_TO_RAD_RATIO = Math.PI / 180;
+
+const BOUNDARY_BOTTOM_CORNER_X = -27;
+const BOUNDARY_BOTTOM_CORNER_Y = -15;
+const BOUNDARY_TOP_CORNER_X = 27;
+const BOUNDARY_TOP_CORNER_Y = 15;
+const VIEWING_CYLINDER_RADIUS = 10;
+
 var canvas, 
     gl, 
     program,
@@ -6,7 +18,8 @@ var canvas,
     mat4, 
     projectionMatrix, 
     viewMatrix,
-    aspectRatio;
+    aspectRatio,
+    planeToCylinderMapper;
 
 var flock, cloudBatch;
 var frameData, vrDisplay, normalSceneFrame, vrSceneFrame;
@@ -20,8 +33,13 @@ var start = function() {
     vec3 = glMatrix.vec3;
     mat4 = glMatrix.mat4;
     aspectRatio = canvas.width / canvas.height;
-    
-    boolLeftEyeHasRendered = false;
+
+    planeToCylinderMapper = new PlaneToCylinderMapper(
+        BOUNDARY_BOTTOM_CORNER_X, 
+        BOUNDARY_BOTTOM_CORNER_Y, 
+        BOUNDARY_TOP_CORNER_X, 
+        BOUNDARY_TOP_CORNER_Y, 
+        VIEWING_CYLINDER_RADIUS);
 
     program = new Shader('vertShader', 'fragShader');
     program.UseProgram();
