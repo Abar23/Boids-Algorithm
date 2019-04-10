@@ -21,6 +21,8 @@ var start = function() {
     mat4 = glMatrix.mat4;
     aspectRatio = canvas.width / canvas.height;
     
+    boolLeftEyeHasRendered = false;
+
     program = new Shader('vertShader', 'fragShader');
     program.UseProgram();
 
@@ -112,6 +114,9 @@ var drawScene = function() {
     
     flock.Update();
     cloudBatch.Update();
+
+    flock.Draw();
+    cloudBatch.Draw();
 }
 
 // WebVR animation loop
@@ -124,6 +129,9 @@ var drawVRScene = function() {
 
     gl.clearColor(0.53, 0.81, 0.92, 1.0);   // sky blue
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    flock.Update();
+    cloudBatch.Update();
 
     // left eye
     gl.viewport(0, 0, canvas.width * 0.5, canvas.height);
@@ -144,8 +152,8 @@ var drawVRScene = function() {
         mat4.translate(viewMatrix, viewMatrix, vec3.fromValues(0.0 - (curPos[0] * 25) + (curOrient[1] * 25), 
                                                                5.0 - (curPos[1] * 25) - (curOrient[0] * 25), 
                                                                0.0 - (curPos[2] * 25)));
-        flock.Update();
-        cloudBatch.Update();
+        flock.Draw();
+        cloudBatch.Draw();
     }
 
     vrDisplay.submitFrame();

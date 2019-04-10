@@ -98,7 +98,7 @@ class Boid
         mat4.scale(this.modelMatrix, this.modelMatrix, vec3.fromValues(1.0, 1.0, 1.0));
     }
 
-    Render(shaderProgram)
+    Draw(shaderProgram)
     {
         this.animator.BindAtlas(0);
         shaderProgram.SetUniformMatrix4fv('mWorld', this.modelMatrix);
@@ -149,9 +149,9 @@ class Boid
             }
         }
 
-        var separation = this.Separate(separationSteerVector, numAlignmentNeighbors);
-        var alignment = this.Align(alignmentSumVector, numCohesionNeighbors);
-        var cohesion = this.Cohesion(cohesionSumVector, numSeparationNeughbors);
+        var separation = this.CalculateSeparationForce(separationSteerVector, numAlignmentNeighbors);
+        var alignment = this.CalculateAlignmentForce(alignmentSumVector, numCohesionNeighbors);
+        var cohesion = this.CalculateCohesionForce(cohesionSumVector, numSeparationNeughbors);
         vec3.multiply(separation, separation, vec3.fromValues(1.5, 1.5, 1.5));
         vec3.multiply(alignment, alignment, vec3.fromValues(1.0, 1.0, 1.0));
         vec3.multiply(cohesion, cohesion, vec3.fromValues(1.0, 1.0, 1.0));
@@ -160,7 +160,7 @@ class Boid
         vec3.add(this.acceleration, this.acceleration, cohesion);
     }
 
-    Borders()
+    AvoidEdges()
     {
         if(this.position[0] > 27)
         {
@@ -180,15 +180,14 @@ class Boid
         }
     }
 
-    Run(boids, shaderProgram)
+    Run(boids)
     {
         this.Flock(boids);
         this.Update();
-        this.Borders();
-        this.Render(shaderProgram);
+        this.AvoidEdges();
     }
 
-    Separate(steerVector, count) 
+    CalculateSeparationForce(steerVector, count) 
     {
         if (count > 0)
         {
@@ -208,7 +207,7 @@ class Boid
         return steerVector;
     }
 
-    Align(sumVector, count)
+    CalculateAlignmentForce(sumVector, count)
     {
         var steerVector = vec3.create();
         if (count > 0)
@@ -225,7 +224,7 @@ class Boid
         return steerVector;
     }
 
-    Cohesion(sumVector, count) 
+    CalculateCohesionForce(sumVector, count) 
     {        
         var steerVector = vec3.create();
         if (count > 0)

@@ -37,6 +37,14 @@ class Flock
         }
     }
 
+    Draw()
+    {
+        for(let i = 0; i < this.boids.length; i++)
+        {
+            this.boids[i].Draw(this.shader);
+        }
+    }
+
     RandomValueBetween(minimumValue, maximumValue)
     {
         return Math.floor(Math.random() * (maximumValue - minimumValue + 1)) + minimumValue;

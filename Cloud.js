@@ -15,11 +15,10 @@ class Cloud
         this.velocity = vec3.fromValues(x, 0, 0);
     }
 
-    Run(shaderProgram)
+    Run()
     {
         this.Update();
         this.Borders();
-        this.Render(shaderProgram);
     }
 
     Update()
@@ -32,7 +31,7 @@ class Cloud
         mat4.scale(this.modelMatrix, this.modelMatrix, vec3.fromValues(this.scale, this.scale, this.scale));
     }
 
-    Render(shaderProgram)
+    Draw(shaderProgram)
     {
         this.texture.BindTexture(0);
         shaderProgram.SetUniformMatrix4fv('mWorld', this.modelMatrix);

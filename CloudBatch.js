@@ -29,7 +29,15 @@ class CloudBatch
     {
         for(let i = 0; i < this.clouds.length; i++)
         {
-            this.clouds[i].Run(this.shader);
+            this.clouds[i].Run();
+        }
+    }
+
+    Draw()
+    {
+        for(let i = 0; i < this.clouds.length; i++)
+        {
+            this.clouds[i].Draw(this.shader);
         }
     }
 
