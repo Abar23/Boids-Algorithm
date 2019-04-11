@@ -1,3 +1,10 @@
+const DESIRED_SEPARATION = 1.5;
+const ALIGNMENT_NEIGHBOR_DISTANCE = 3;
+const COHESION_NEIGHBOR_DISTANCE = 3;
+const SEPARATION_FORCE_SCALE = 1.5;
+const ALIGNMENT_FORCE_SCALE = 1.0;
+const COHESION_FORCE_SCALE = 1.0;
+
 var verts = [-1.0,  1.0, 0.0,
               1.0,  1.0, 0.0,
              -1.0, -1.0, 0.0, 
@@ -13,7 +20,6 @@ class Boid
         this.spriteAtlas = spriteAtlas;
         this.animator = new DuckAnimator(this.spriteAtlas, this.mesh);
         this.mesh = new Mesh(verts, this.animator.GetTextCoords(), indices, shaderProgram);
-        this.acceleration = vec3.create();
         this.velocity = vec3.fromValues(this.RandomValueBetween(-1, 1), this.RandomValueBetween(-1, 1), 0);
         this.position = vec3.create();
         this.maxSpeed = 0.2;
@@ -28,10 +34,7 @@ class Boid
 
     Update()
     {
-        vec3.add(this.velocity, this.velocity, this.acceleration);
-        this.Limit(this.velocity, this.maxSpeed);
         vec3.add(this.position, this.position, this.velocity);
-        vec3.set(this.acceleration, 0, 0, 0);
 
         var headingAngle = Math.atan2(this.velocity[1], this.velocity[0]) * RAD_TO_DEGREES_RATIO;
         var evaluationAngle = Math.abs(headingAngle);
@@ -95,11 +98,6 @@ class Boid
             this.modelMatrix[14] = cylinderCoords[2];
 
             var angle = planeToCylinderMapper.GetAngle(this.position[0]) + PI_OVER_TWO;
-            if(evaluationAngle < 0)
-            {
-                angle += Math.PI;
-            }
-            
             mat4.rotate(this.modelMatrix, this.modelMatrix, -angle, vec3.fromValues(0, 1, 0));
         }
         else if(btn.textContent === "Start VR")
@@ -123,38 +121,35 @@ class Boid
         this.animator.UnbindAtlas();
     }
 
-    Flock(boids)
+    FlockToNeightbors(boids)
     {
-        var desiredSeparation = 1.5;
         var separationSteerVector = vec3.create();
         var numSeparationNeughbors = 0;
 
-        var alignmentNeighborDistance = 3;
         var alignmentSumVector = vec3.create();
         var numAlignmentNeighbors = 0;
         
-        var cohesionNeighborDistance = 3;
         var cohesionSumVector = vec3.create();
         var numCohesionNeighbors = 0;
 
         for(let i = 0; i < boids.length; i++)
         {
-            var dist = vec3.distance(this.position, boids[i].position);
-            if (dist > 0 && dist < alignmentNeighborDistance)
+            var distanceFromNeighbor = vec3.distance(this.position, boids[i].position);
+            if (distanceFromNeighbor > 0 && distanceFromNeighbor < ALIGNMENT_NEIGHBOR_DISTANCE)
             {
                 vec3.add(alignmentSumVector, alignmentSumVector, boids[i].velocity);
                 numAlignmentNeighbors++;
             }
 
-            if (dist > 0 && dist < cohesionNeighborDistance)
+            if (distanceFromNeighbor > 0 && distanceFromNeighbor < COHESION_NEIGHBOR_DISTANCE)
             {
                 vec3.add(cohesionSumVector, cohesionSumVector, boids[i].velocity);
                 numCohesionNeighbors++;
             }
 
-            if (dist > 0 && dist < desiredSeparation)
+            if (distanceFromNeighbor > 0 && distanceFromNeighbor < DESIRED_SEPARATION)
             {
-                var distanceVector = vec3.fromValues(dist, dist, dist);
+                var distanceVector = vec3.fromValues(distanceFromNeighbor, distanceFromNeighbor, distanceFromNeighbor);
                 var diff = vec3.create();
                 vec3.subtract(diff, this.position, boids[i].position);
                 vec3.normalize(diff, diff);
@@ -167,12 +162,13 @@ class Boid
         var separation = this.CalculateSeparationForce(separationSteerVector, numAlignmentNeighbors);
         var alignment = this.CalculateAlignmentForce(alignmentSumVector, numCohesionNeighbors);
         var cohesion = this.CalculateCohesionForce(cohesionSumVector, numSeparationNeughbors);
-        vec3.multiply(separation, separation, vec3.fromValues(1.5, 1.5, 1.5));
-        vec3.multiply(alignment, alignment, vec3.fromValues(1.0, 1.0, 1.0));
-        vec3.multiply(cohesion, cohesion, vec3.fromValues(1.0, 1.0, 1.0));
-        vec3.add(this.acceleration, this.acceleration, separation);
-        vec3.add(this.acceleration, this.acceleration, alignment);
-        vec3.add(this.acceleration, this.acceleration, cohesion);
+        vec3.scale(separation, separation, SEPARATION_FORCE_SCALE);
+        vec3.scale(alignment, alignment, ALIGNMENT_FORCE_SCALE);
+        vec3.scale(cohesion, cohesion, COHESION_FORCE_SCALE);
+        vec3.add(this.velocity, this.velocity, separation);
+        vec3.add(this.velocity, this.velocity, alignment);
+        vec3.add(this.velocity, this.velocity, cohesion);
+        this.LimitVectorMagnitude(this.velocity, this.maxSpeed);
     }
 
     AvoidEdges()
@@ -197,7 +193,7 @@ class Boid
 
     Run(boids)
     {
-        this.Flock(boids);
+        this.FlockToNeightbors(boids);
         this.Update();
         this.AvoidEdges();
     }
@@ -216,7 +212,7 @@ class Boid
             vec3.normalize(steerVector, steerVector);
             vec3.multiply(steerVector, steerVector, maxSpeedVector);
             vec3.subtract(steerVector, steerVector, this.velocity);
-            this.Limit(steerVector, this.maxSteeringForce);
+            this.LimitVectorMagnitude(steerVector, this.maxSteeringForce);
         }
 
         return steerVector;
@@ -233,7 +229,7 @@ class Boid
             vec3.normalize(sumVector, sumVector);
             vec3.multiply(sumVector, sumVector, maxSpeedVector);
             vec3.subtract(steerVector, sumVector, this.velocity);
-            this.Limit(steerVector, this.maxSteeringForce);
+            this.LimitVectorMagnitude(steerVector, this.maxSteeringForce);
         }
 
         return steerVector;
@@ -254,13 +250,13 @@ class Boid
             vec3.multiply(desired, desired, maxSpeedVector);
 
             vec3.subtract(steerVector, desired, this.velocity);
-            this.Limit(steerVector, this.maxSteeringForce);
+            this.LimitVectorMagnitude(steerVector, this.maxSteeringForce);
         }
 
         return steerVector;
     }
 
-    Limit(vector, max)
+    LimitVectorMagnitude(vector, max)
     {
         if (vec3.length(vector) > max)
         {
