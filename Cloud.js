@@ -43,7 +43,6 @@ class Cloud
             this.modelMatrix[13] = this.position[1];
             this.modelMatrix[14] = this.position[2];
         }
-
         
         mat4.scale(this.modelMatrix, this.modelMatrix, vec3.fromValues(this.scale, this.scale, this.scale));
     }
