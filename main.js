@@ -8,7 +8,7 @@ const BOUNDARY_BOTTOM_CORNER_X = -27;
 const BOUNDARY_BOTTOM_CORNER_Y = -15;
 const BOUNDARY_TOP_CORNER_X = 27;
 const BOUNDARY_TOP_CORNER_Y = 15;
-const VIEWING_CYLINDER_RADIUS = 10;
+const VIEWING_CYLINDER_RADIUS = 20;
 
 var canvas, 
     gl, 
@@ -44,8 +44,8 @@ var start = function() {
     program = new Shader('vertShader', 'fragShader');
     program.UseProgram();
 
-    flock = new Flock(1, program);
-    cloudBatch = new CloudBatch(1, program);
+    flock = new Flock(50, program);
+    cloudBatch = new CloudBatch(30, program);
 
     drawScene();
     //requestAnimationFrame(drawScene);
@@ -62,6 +62,8 @@ var start = function() {
                 // Starting the presentation when the button is clicked: It can only be called in response to a user gesture
                 btn.addEventListener('click', function() {
                     if(btn.textContent === 'Start VR') {
+                        btn.textContent = 'Exit VR';
+
                         vrDisplay.requestPresent([{ source: canvas }]).then(function() {
                             console.log('Presenting to WebVR display');
 
@@ -76,14 +78,12 @@ var start = function() {
                             // stop the normal presentation, and start the vr presentation
                             window.cancelAnimationFrame(normalSceneFrame);
                             drawVRScene();
-
-                            btn.textContent = 'Exit VR';
                         });
                     } else {
+                        btn.textContent = 'Start VR';
+
                         vrDisplay.exitPresent();
                         console.log('Stopped presenting to WebVR display');
-
-                        btn.textContent = 'Start VR';
 
                         // Stop the VR presentation, and start the normal presentation
                         vrDisplay.cancelAnimationFrame(vrSceneFrame);

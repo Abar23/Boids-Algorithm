@@ -34,8 +34,8 @@ class Cloud
             this.modelMatrix[13] = cylinderCoords[1];
             this.modelMatrix[14] = cylinderCoords[2];
 
-            // var angle = planeToCylinderMapper.GetAngle(cylinderCoords[0]);
-            // mat4.rotate(this.modelMatrix, this.modelMatrix, angle, vec3.fromValues(0, 1, 0));
+            var angle = planeToCylinderMapper.GetAngle(this.position[0]) + PI_OVER_TWO;
+            mat4.rotate(this.modelMatrix, this.modelMatrix, -angle, vec3.fromValues(0, 1, 0));
         }
         else if(btn.textContent === "Start VR")
         {
