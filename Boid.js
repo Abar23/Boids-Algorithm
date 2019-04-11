@@ -6,12 +6,6 @@ var verts = [-1.0,  1.0, 0.0,
 var indices = [0, 2, 1,
                1, 2, 3];
 
-const TWO_PI = 2 * Math.PI;
-const PI_OVER_TWO = Math.PI / 2;
-const PI_OVER_FOUR = Math.PI / 4;
-const RAD_TO_DEGREES_RATIO = 180 / Math.PI;
-const DEGREES_TO_RAD_RATIO = Math.PI / 180;
-
 class Boid
 {
     constructor(shaderProgram, spriteAtlas) 
@@ -91,9 +85,30 @@ class Boid
         this.animator.Update(this.mesh);
         
         this.modelMatrix = mat4.create();
-        this.modelMatrix[12] = this.position[0];
-        this.modelMatrix[13] = this.position[1];
-        this.modelMatrix[14] = -12.5;
+        
+        if(btn.textContent === "Exit VR")
+        {   
+            var cylinderCoords = planeToCylinderMapper.ConvertPlaneCoordsToCylinder(this.position);
+
+            this.modelMatrix[12] = cylinderCoords[0];
+            this.modelMatrix[13] = cylinderCoords[1];
+            this.modelMatrix[14] = cylinderCoords[2];
+
+            var angle = planeToCylinderMapper.GetAngle(this.position[0]) + PI_OVER_TWO;
+            if(evaluationAngle < 0)
+            {
+                angle += Math.PI;
+            }
+            
+            mat4.rotate(this.modelMatrix, this.modelMatrix, -angle, vec3.fromValues(0, 1, 0));
+        }
+        else if(btn.textContent === "Start VR")
+        {
+            this.modelMatrix[12] = this.position[0];
+            this.modelMatrix[13] = this.position[1];
+            this.modelMatrix[14] = -12.5;
+        }
+
         mat4.rotate(this.modelMatrix, this.modelMatrix, headingAngle, vec3.fromValues(0, 0, 1));
         mat4.scale(this.modelMatrix, this.modelMatrix, vec3.fromValues(1.0, 1.0, 1.0));
     }
@@ -162,21 +177,21 @@ class Boid
 
     AvoidEdges()
     {
-        if(this.position[0] > 27)
+        if(this.position[0] > BOUNDARY_TOP_CORNER_X)
         {
-            this.position[0] = -27;
+            this.position[0] = BOUNDARY_BOTTOM_CORNER_X;
         }
-        else if(this.position[0] < -27)
+        else if(this.position[0] < BOUNDARY_BOTTOM_CORNER_X)
         {
-            this.position[0] = 27;
+            this.position[0] = BOUNDARY_TOP_CORNER_X;
         }
-        else if(this.position[1] > 15)
+        else if(this.position[1] > BOUNDARY_TOP_CORNER_Y)
         {
-            this.position[1] = -15;
+            this.position[1] = BOUNDARY_BOTTOM_CORNER_Y;
         }
-        else if(this.position[1] < -15)
+        else if(this.position[1] < BOUNDARY_BOTTOM_CORNER_Y)
         {
-            this.position[1] = 15;
+            this.position[1] = BOUNDARY_TOP_CORNER_Y;
         }
     }
 

@@ -1,3 +1,15 @@
+const TWO_PI = 2 * Math.PI;
+const PI_OVER_TWO = Math.PI / 2;
+const PI_OVER_FOUR = Math.PI / 4;
+const RAD_TO_DEGREES_RATIO = 180 / Math.PI;
+const DEGREES_TO_RAD_RATIO = Math.PI / 180;
+
+const BOUNDARY_BOTTOM_CORNER_X = -27;
+const BOUNDARY_BOTTOM_CORNER_Y = -15;
+const BOUNDARY_TOP_CORNER_X = 27;
+const BOUNDARY_TOP_CORNER_Y = 15;
+const VIEWING_CYLINDER_RADIUS = 20;
+
 var canvas, 
     gl, 
     program,
@@ -6,10 +18,11 @@ var canvas,
     mat4, 
     projectionMatrix, 
     viewMatrix,
-    aspectRatio;
+    aspectRatio,
+    planeToCylinderMapper;
 
 var flock, cloudBatch;
-var frameData, vrDisplay, normalSceneFrame, vrSceneFrame;
+var frameData, vrDisplay, normalSceneFrame, vrSceneFrame, curOrient;
 var btn = document.querySelector('.stop-start');
 
 // start() is the main function that gets called first by index.html
@@ -20,14 +33,19 @@ var start = function() {
     vec3 = glMatrix.vec3;
     mat4 = glMatrix.mat4;
     aspectRatio = canvas.width / canvas.height;
-    
-    boolLeftEyeHasRendered = false;
+
+    planeToCylinderMapper = new PlaneToCylinderMapper(
+        BOUNDARY_BOTTOM_CORNER_X, 
+        BOUNDARY_BOTTOM_CORNER_Y, 
+        BOUNDARY_TOP_CORNER_X, 
+        BOUNDARY_TOP_CORNER_Y, 
+        VIEWING_CYLINDER_RADIUS);
 
     program = new Shader('vertShader', 'fragShader');
     program.UseProgram();
 
-    flock = new Flock(40, program);
-    cloudBatch = new CloudBatch(20, program);
+    flock = new Flock(50, program);
+    cloudBatch = new CloudBatch(30, program);
 
     drawScene();
     //requestAnimationFrame(drawScene);
@@ -44,6 +62,8 @@ var start = function() {
                 // Starting the presentation when the button is clicked: It can only be called in response to a user gesture
                 btn.addEventListener('click', function() {
                     if(btn.textContent === 'Start VR') {
+                        btn.textContent = 'Exit VR';
+
                         vrDisplay.requestPresent([{ source: canvas }]).then(function() {
                             console.log('Presenting to WebVR display');
 
@@ -58,14 +78,12 @@ var start = function() {
                             // stop the normal presentation, and start the vr presentation
                             window.cancelAnimationFrame(normalSceneFrame);
                             drawVRScene();
-
-                            btn.textContent = 'Exit VR';
                         });
                     } else {
+                        btn.textContent = 'Start VR';
+
                         vrDisplay.exitPresent();
                         console.log('Stopped presenting to WebVR display');
-
-                        btn.textContent = 'Start VR';
 
                         // Stop the VR presentation, and start the normal presentation
                         vrDisplay.cancelAnimationFrame(vrSceneFrame);
@@ -87,9 +105,9 @@ var initCanvas = function() {
     gl.clearColor(0.53, 0.81, 0.92, 1.0);   // sky blue
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	gl.enable(gl.DEPTH_TEST);
-	gl.enable(gl.CULL_FACE);
+	//gl.enable(gl.CULL_FACE);
 	gl.frontFace(gl.CCW);
-    gl.cullFace(gl.BACK); 
+    //gl.cullFace(gl.BACK); 
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); 
 }
@@ -125,7 +143,7 @@ var drawVRScene = function() {
     vrDisplay.getFrameData(frameData);
     var curFramePose = frameData.pose;
     var curPos = curFramePose.position;
-    var curOrient = curFramePose.orientation;
+    curOrient = curFramePose.orientation;
 
     gl.clearColor(0.53, 0.81, 0.92, 1.0);   // sky blue
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
