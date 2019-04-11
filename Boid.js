@@ -93,6 +93,14 @@ class Boid
             this.modelMatrix[12] = cylinderCoords[0];
             this.modelMatrix[13] = cylinderCoords[1];
             this.modelMatrix[14] = cylinderCoords[2];
+
+            var angle = planeToCylinderMapper.GetAngle(this.position[0]) + PI_OVER_TWO;
+            if(evaluationAngle < 0)
+            {
+                angle += Math.PI;
+            }
+            
+            mat4.rotate(this.modelMatrix, this.modelMatrix, -angle, vec3.fromValues(0, 1, 0));
         }
         else if(btn.textContent === "Start VR")
         {
