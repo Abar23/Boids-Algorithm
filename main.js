@@ -44,7 +44,7 @@ var start = function() {
     program = new Shader('vertShader', 'fragShader');
     program.UseProgram();
 
-    flock = new Flock(25, program);
+    flock = new Flock(45, program);
     cloudBatch = new CloudBatch(30, program);
 
     drawScene();
