@@ -34,8 +34,3 @@ that the server is using:
 ```
 localhost:<port number>
 ```
-
-GitHub Pages Project Hosting
-============================
-
-https://abar23.github.io/Boids-Algorithm/
