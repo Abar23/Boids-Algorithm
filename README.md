@@ -13,7 +13,7 @@ assets from the famous Nintendo Entertainment System game called Duck Hunt.
 The project also utilizes WebVR so that a user on a mobile device can experience 
 space in Virtual Reality. The application can be set to VR by tapping/clicking the
 "Start VR" button in the bottom left sife of the screen. The VR mode works best 
-when using a google cardboard or similar device.
+with Chrome mobile web browser.
 
 How To Run Project
 ==================
