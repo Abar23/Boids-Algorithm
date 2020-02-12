@@ -34,3 +34,11 @@ that the server is using:
 ```
 localhost:<port number>
 ```
+
+Controls
+========
+
+Click/tap the canvas to spawn a new duck/boid in the center of the screen.
+
+Click/Tap the "Start VR" button to change enter into VR mode. Works best on 
+mobile Android devices.
