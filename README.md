@@ -3,7 +3,7 @@ Boids Birds
 
 ![Boid Birds gif](https://media.giphy.com/media/M8uBtxH3bIyFigw18K/giphy.gif)
 
-Boids Birds is a WebGL2 project that implements Boids Algorithm, which is a 
+Boids Birds is a WebGL2 project that implements Boids algorithm, which is a 
 famous algorithm that simulates flocking behavior observed in animals such as
 birds. In addition to implementing the base algorithm, there is also a small
 2D animation system that was implemented for frame based animation. The animation
